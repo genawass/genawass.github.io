@@ -94,7 +94,8 @@
           so that papers about similar things sit near each other; colors are
           24 topic clusters the data fell into on its own. Hover to read titles,
           click a cluster in the legend to isolate it, and zoom into any
-          neighborhood you care about.
+          neighborhood you care about — or use the toggle at the top right to
+          recolor the map by track, main conference vs. the new Findings papers.
         </p>
 
         <div class="chart-embed viz">
@@ -115,6 +116,20 @@
           CLIP-style encoders, large multimodal models) now show up everywhere.
         </p>
 
+        <h2>The new Findings track</h2>
+        <p>
+          CVPR 2026 introduced a <strong>Findings</strong> track — 941 papers (19% of
+          the total) accepted as solid contributions a notch below the main program.
+          Flip the map to <em>Main vs Findings</em> and the two overlap almost
+          everywhere: Findings is mostly a <em>mirror</em> of the main conference, not
+          a different field. But it isn't uniform. Findings is over-represented in the
+          applied, incremental corners — deepfake forensics (31% of that cluster),
+          computational imaging and compression (26%), medical imaging (25%), and VLM
+          efficiency (25%) — and under-represented in the buzzy frontier it leaves to
+          the main track: 3D reconstruction and generation, video generation, and 3D
+          spatial reasoning (each ~12–15%).
+        </p>
+
         <h2>What the conference is about</h2>
         <p>
           Collapsing the map into cluster sizes gives the topic landscape, and this
@@ -132,8 +147,8 @@
             title="Topic landscape of CVPR 2026"></iframe>
         </div>
         <p class="chart-cap">
-          The 24 clusters, sized by paper count and labeled by their most
-          distinctive terms (c-TF-IDF over each cluster's titles).
+          The 24 clusters, sized by paper count and labeled by hand from each
+          cluster's representative titles.
         </p>
 
         <h2>The ideas everyone is building on</h2>
@@ -163,8 +178,8 @@
           </li>
           <li>
             <strong>Gaussian Splatting has lapped NeRF.</strong> 3DGS appears in
-            5.1% of papers; NeRF and radiance fields in just 1.0%. Two years ago
-            that ratio was reversed.
+            5.1% of papers; NeRF and radiance fields in just 1.0% — a ratio that was
+            reversed only two years ago (see the trend below).
           </li>
           <li>
             <strong>Mamba / state-space models stayed niche</strong> at 1.2% —
@@ -173,6 +188,36 @@
             successors.
           </li>
         </ul>
+
+        <h2>What grew and what faded</h2>
+        <p>
+          With the 2024 and 2025 proceedings scraped too, the snapshot becomes a
+          trajectory. The three-year story is the
+          <strong>generative-multimodal takeover</strong>: multimodal papers more
+          than doubled (10% → 21% of the main track), vision-language models did the
+          same (7% → 17%), and explicit LLM mentions climbed from 7% to 13%. The
+          sharpest newcomer is <strong>reinforcement learning</strong> — flat near
+          1% through 2025, then exploding to 6.6% in 2026 as RL-style post-training
+          swept into vision.
+        </p>
+
+        <div class="chart-embed viz">
+          <iframe src="cvpr2026/charts/06_trends.html" scrolling="no"
+            title="Year-over-year idea trends in CVPR, 2024–2026"></iframe>
+        </div>
+        <p class="chart-cap">
+          Document frequency of each idea across the CVPR 2024, 2025 and 2026
+          <em>main</em> tracks (Findings excluded for a like-for-like comparison).
+        </p>
+
+        <p>
+          The chart also settles the NeRF question. In 2024, NeRF / radiance fields
+          (5.2%) led 3D Gaussian Splatting (2.0%); by 2025 splatting had lapped it
+          (6.5% vs 2.5%), and in 2026 NeRF has all but vanished (1.1%) while
+          splatting holds near its peak. A few ideas <em>cooled</em> too — point
+          clouds, CLIP, and zero-/few-shot framings all drifted down as the field's
+          center of mass moved to generation and reasoning.
+        </p>
 
         <h2>How topics connect</h2>
         <p>
@@ -195,6 +240,27 @@
           Top 150 co-occurring title terms (connected groups only). Node size =
           how many papers use the term; color = community (greedy modularity);
           layout = force-directed.
+        </p>
+
+        <h2>Who ships their code</h2>
+        <p>
+          Roughly <strong>a quarter of papers (25%)</strong> link a public repo or
+          project page in their abstract — but the rate swings widely by topic. The
+          most reproducible corners are the classic perception tasks: 3D detection
+          and geo-localization (33%), computational imaging and compression (32%),
+          medical imaging (32%), and open-vocabulary detection (30%). The most closed
+          are the frontier generative areas — 3D shape and scene generation (16%),
+          Gaussian Splatting (18%), and the RL / VLA / agent clusters (~19%) — where
+          the work is newer, heavier, and often closer to a product.
+        </p>
+
+        <div class="chart-embed bars">
+          <iframe src="cvpr2026/charts/07_code.html" scrolling="no"
+            title="Open-source rate by topic cluster in CVPR 2026"></iframe>
+        </div>
+        <p class="chart-cap">
+          Share of each cluster's papers that link code or a project page in the
+          abstract. Dashed line = the 25% conference-wide average.
         </p>
 
         <h2>How the field names its work</h2>
@@ -232,12 +298,14 @@
           scraped from CVF Open Access. Embeddings come from the
           <code>all-MiniLM-L6-v2</code> sentence-transformer, so proximity on the
           map means semantic similarity of text — not citations or impact. Clusters
-          and the 2D layout are unsupervised, and cluster labels are
-          auto-generated, so read them as helpful approximations rather than
-          official categories. Idea counts are regex matches over each paper's title
-          and abstract, and the concept network is built from title-word
-          co-occurrence. With no prior-year data here, everything above describes
-          CVPR 2026's <em>composition</em>, not multi-year trends. Charts are interactive
+          and the 2D layout are unsupervised; the 24 cluster labels were written by
+          hand from each cluster's representative titles, so read them as helpful
+          approximations rather than official categories. Idea counts are regex
+          matches over each paper's title and abstract; the concept network is built
+          from title-word co-occurrence; and the open-source rate is a heuristic
+          (does the abstract link a repo or project page?), so it undercounts code
+          released only after publication. Year-over-year trends compare the CVPR
+          2024–2026 <em>main</em> tracks for consistency. Charts are interactive
           (Plotly); the code lives on
           <a href="https://github.com/genawass" target="_blank" rel="noreferrer">GitHub</a>.
         </p>
