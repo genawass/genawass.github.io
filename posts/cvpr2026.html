@@ -6,7 +6,7 @@
     <title>The Map of CVPR 2026 — Genadiy Vasserman</title>
     <meta
       name="description"
-      content="A data-driven tour of all 2,672 CVPR 2026 papers: an interactive map of the conference, the topics that dominate it, the ideas everyone is building on, and how the field names its work."
+      content="A data-driven tour of all 5,010 CVPR 2026 papers: an interactive map of the conference, the topics that dominate it, the ideas everyone is building on, and how the field names its work."
     />
     <link rel="stylesheet" href="../styles.css" />
     <style>
@@ -79,9 +79,10 @@
 
       <div class="post-body">
         <p class="lede">
-          CVPR 2026 accepted 2,672 main-conference papers. That is far more than
-          any one person can read — but it is small enough to <em>see</em> all at
-          once. I embedded every paper from its title, keywords and abstract,
+          CVPR 2026 accepted 5,010 papers — 4,069 in the main conference and 941
+          more in the new Findings track. That is far more than any one person can
+          read — but it is small enough to <em>see</em> all at once. I embedded
+          every paper from its title and abstract,
           projected the whole corpus down to two dimensions, and let the topics
           arrange themselves. What follows is a tour of that map and a few things
           it reveals about where computer vision actually is this year.
@@ -98,10 +99,10 @@
 
         <div class="chart-embed viz">
           <iframe src="cvpr2026/charts/01_map.html" scrolling="no"
-            title="The Map of CVPR 2026 — interactive scatter of all 2,672 papers"></iframe>
+            title="The Map of CVPR 2026 — interactive scatter of all 5,010 papers"></iframe>
         </div>
         <p class="chart-cap">
-          All 2,672 CVPR 2026 papers, embedded with a sentence-transformer and
+          All 5,010 CVPR 2026 papers, embedded with a sentence-transformer and
           projected to 2D with UMAP. Color = automatically discovered topic cluster.
         </p>
 
@@ -116,11 +117,14 @@
 
         <h2>What the conference is about</h2>
         <p>
-          Collapsing the map into cluster sizes gives the topic landscape. The
-          single largest cluster this year is <strong>feed-forward 3D
-          reconstruction</strong> — the DUSt3R / VGGT lineage — with a little over
-          200 papers, followed by a stack of diffusion-for-generation clusters and
-          a deep bench of vision-language understanding.
+          Collapsing the map into cluster sizes gives the topic landscape, and this
+          year it is strikingly flat — no single topic runs away with the
+          conference. The largest clusters each hold 250–350 papers (5–7%):
+          <strong>open-vocabulary detection and segmentation</strong>, multimodal
+          reasoning, vision-language-action and autonomous driving, diffusion-based
+          generation and super-resolution, video generation, human motion, and image
+          editing. Behind them sits a long tail of 3D reconstruction,
+          continual / federated learning, and pose / depth estimation.
         </p>
 
         <div class="chart-embed bars">
@@ -129,7 +133,7 @@
         </div>
         <p class="chart-cap">
           The 24 clusters, sized by paper count and labeled by their most
-          distinctive terms (c-TF-IDF over each cluster's titles and keywords).
+          distinctive terms (c-TF-IDF over each cluster's titles).
         </p>
 
         <h2>The ideas everyone is building on</h2>
@@ -144,7 +148,7 @@
             title="Buzzword adoption across CVPR 2026 papers"></iframe>
         </div>
         <p class="chart-cap">
-          Share of the 2,672 papers mentioning each idea (document frequency over
+          Share of the 5,010 papers mentioning each idea (document frequency over
           title + abstract). A paper can count toward several.
         </p>
 
@@ -153,50 +157,55 @@
         </p>
         <ul>
           <li>
-            <strong>Multimodal (23%), video (20%), and diffusion (20%)</strong> are
+            <strong>Multimodal (22%), diffusion (19%), and video (18%)</strong> are
             now the water everyone swims in. Add vision-language models (18%) and
-            LLMs (14%) and the generative-multimodal core is unmistakable.
+            LLMs (13%) and the generative-multimodal core is unmistakable.
           </li>
           <li>
             <strong>Gaussian Splatting has lapped NeRF.</strong> 3DGS appears in
-            5.5% of papers; NeRF and radiance fields in just 1.2%. Two years ago
+            5.1% of papers; NeRF and radiance fields in just 1.0%. Two years ago
             that ratio was reversed.
           </li>
           <li>
-            <strong>Mamba / state-space models stayed niche</strong> at under 1%.
-            The transformer (12% explicit, far more implicit) is still the
-            default, despite the hype cycle around its successors.
+            <strong>Mamba / state-space models stayed niche</strong> at 1.2% —
+            having only just edged past NeRF. The transformer (11% explicit, far
+            more implicit) is still the default, despite the hype cycle around its
+            successors.
           </li>
         </ul>
 
         <h2>How topics connect</h2>
         <p>
-          Papers tag themselves with keywords, and those keywords co-occur in
-          telling ways. Drawing the strongest 150 co-occurring pairs as a network
-          shows the field's wiring: a dense generative-multimodal hub where image
-          understanding, language modeling, CLIP and diffusion all interlock, with
-          tighter satellite communities around 3D, video, and the transformer's
-          internals (attention, KV-cache).
+          The concept words in paper titles co-occur in telling ways. Drawing the
+          strongest 150 co-occurring term pairs as a network shows the field's
+          wiring: a dense <strong>vision-language-reasoning hub</strong> (language,
+          vision, visual, multimodal, reasoning) sits at the center, wired to a
+          generation-and-diffusion cluster (generation, diffusion, editing, latent,
+          flow). Tighter satellite communities orbit it — detection / segmentation,
+          3D reconstruction (gaussian, splatting, view, scene), pose / depth
+          estimation, and a small autonomous-driving knot. <em>generation</em>,
+          <em>language</em>, and <em>vision</em> are the most-connected hubs.
         </p>
 
         <div class="chart-embed viz">
           <iframe src="cvpr2026/charts/04_network.html" scrolling="no"
-            title="Keyword co-occurrence network of CVPR 2026"></iframe>
+            title="Title-term co-occurrence network of CVPR 2026"></iframe>
         </div>
         <p class="chart-cap">
-          Top 150 co-occurring keyword pairs (connected groups only). Node size =
-          how many papers use the keyword; color = community (greedy modularity);
+          Top 150 co-occurring title terms (connected groups only). Node size =
+          how many papers use the term; color = community (greedy modularity);
           layout = force-directed.
         </p>
 
         <h2>How the field names its work</h2>
         <p>
           Finally, a lighter look — the linguistics of the titles themselves.
-          Three out of four titles (74%) now use the <code>Name: Description</code>
-          colon format. The dramatic <em>"X is All You Need"</em> meme has almost
-          died out (just 2 titles), and so have question-titles (9). Papers like to
-          open with <em>Learning</em>, <em>Towards</em>, <em>Beyond</em>, and
-          <em>Rethinking</em> — and the most-reused acronyms (MLLM, VLM, LLM, VLA,
+          Just under three out of four titles (72%) now use the
+          <code>Name: Description</code> colon format. The dramatic
+          <em>"X is All You Need"</em> meme has almost died out (just 6 titles), and
+          question-titles stay rare (23). Papers like to open with
+          <em>Learning</em>, <em>Towards</em>, <em>Beyond</em>, and
+          <em>Rethinking</em> — and the most-reused acronyms (MLLM, VLM, CLIP, LLM,
           LiDAR, GUI) are themselves a snapshot of the year's obsessions.
         </p>
 
@@ -206,27 +215,29 @@
         </div>
         <p class="chart-cap">
           Title patterns, length distribution, opening words, and the most-reused
-          method names across all 2,672 titles.
+          method names across all 5,010 titles.
         </p>
 
         <h2>And the people</h2>
         <p>
-          Behind the 2,672 papers are <strong>12,924 distinct authors</strong>.
-          The typical paper now carries six authors (mean 6.8); the largest single
+          Behind the 5,010 papers are <strong>20,671 distinct authors</strong>.
+          The typical paper now carries six authors (mean 6.3); the largest single
           author list runs to forty. Computer vision has become, decisively, a
           team sport.
         </p>
 
         <p class="note">
           <strong>Method &amp; caveats.</strong> This is a snapshot of the
-          <em>accepted</em> main-conference papers only. Embeddings come from the
+          <em>accepted</em> papers — 4,069 main-conference plus 941 Findings —
+          scraped from CVF Open Access. Embeddings come from the
           <code>all-MiniLM-L6-v2</code> sentence-transformer, so proximity on the
           map means semantic similarity of text — not citations or impact. Clusters
           and the 2D layout are unsupervised, and cluster labels are
           auto-generated, so read them as helpful approximations rather than
-          official categories. Keyword counts use each paper's own tags. With no
-          prior-year data here, everything above describes CVPR 2026's
-          <em>composition</em>, not multi-year trends. Charts are interactive
+          official categories. Idea counts are regex matches over each paper's title
+          and abstract, and the concept network is built from title-word
+          co-occurrence. With no prior-year data here, everything above describes
+          CVPR 2026's <em>composition</em>, not multi-year trends. Charts are interactive
           (Plotly); the code lives on
           <a href="https://github.com/genawass" target="_blank" rel="noreferrer">GitHub</a>.
         </p>
