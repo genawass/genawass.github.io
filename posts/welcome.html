@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Starting a notebook on edge perception — Genadiy Vasserman</title>
+    <meta
+      name="description"
+      content="An introduction to this writing space: short, practical notes on real-time detection, SLAM, and model compression for the edge."
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <article class="post">
+      <a class="backlink" href="../index.html">← Genadiy Vasserman</a>
+
+      <header class="post-head">
+        <h1>Starting a notebook on edge perception</h1>
+        <time datetime="2026-06">June 2026</time>
+      </header>
+
+      <div class="post-body">
+        <p>
+          I’ve spent most of my career moving computer-vision systems from a
+          research prototype to something that actually runs — in real time, on
+          a device with a fixed power and memory budget. That gap, between a
+          model that works in a notebook and one that ships, is where most of
+          the interesting engineering lives. This is where I’ll write about it.
+        </p>
+
+        <h2>What to expect</h2>
+        <p>
+          Short, practical notes rather than polished essays. Topics I keep
+          coming back to: real-time object detection, visual-inertial SLAM,
+          multi-camera calibration, and the compression work —
+          <code>quantization</code> and pruning — that makes any of it fit on
+          edge hardware like the Jetson Orin.
+        </p>
+
+        <p>
+          Expect concrete trade-offs: where INT8 quantization-aware training
+          helps and where it quietly costs you recall, how to build a model-error
+          taxonomy that actually drives data curation, and the unglamorous
+          details of getting a pipeline to hold its latency budget under load.
+        </p>
+
+        <h2>Why write it down</h2>
+        <p>
+          Mostly because I keep re-deriving the same lessons. Writing them down
+          makes them reusable — for me, and hopefully for anyone else shipping
+          perception to constrained devices.
+        </p>
+
+        <p>
+          More soon. In the meantime, the code lives on
+          <a href="https://github.com/genawass" target="_blank" rel="noreferrer">GitHub</a>.
+        </p>
+      </div>
+    </article>
+  </body>
+</html>

@@ -6,119 +6,230 @@
     <title>Genadiy Vasserman</title>
     <meta
       name="description"
-      content="Personal GitHub Pages website for Genadiy Vasserman. Explore projects, skills, and contact details."
+      content="Genadiy Vasserman — ML and computer-vision researcher working on real-time perception for the edge: detection, SLAM, and model compression."
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="page-shell">
-      <header class="hero">
-        <div>
-          <p class="eyebrow">Hi, I’m</p>
-          <h1>Genadiy Vasserman</h1>
-          <p class="tagline">
-            Senior ML/CV researcher — edge AI, perception, and algorithm development.
+    <div class="page">
+      <aside class="side">
+        <h1>Genadiy Vasserman</h1>
+        <p class="role">ML &amp; Computer-Vision Researcher</p>
+        <p class="loc">Edge AI · Perception · Algorithm Development</p>
+        <nav class="contact">
+          <a href="#blog">Blog</a>
+          <a href="https://github.com/genawass" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/genadiy-vasserman-0079b415/" target="_blank" rel="noreferrer">LinkedIn</a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <section class="bio">
+          <p>
+            I am a machine-learning and computer-vision researcher building
+            real-time perception that runs on the edge. My work spans object
+            detection, SLAM, and model compression, and I take systems from
+            research prototype to on-device deployment. I hold a PhD in
+            computational neuroscience and a machine-learning post-doc, with
+            research published across neuroscience and vision.
           </p>
-          <div class="hero-actions">
-            <a class="button primary" href="#cv">View CV</a>
-            <a class="button secondary" href="#projects">Projects</a>
-            <a class="button secondary" href="#contact">Contact</a>
-          </div>
-        </div>
-      </header>
-
-      <main>
-        <section id="cv" class="section card">
-          <div>
-            <h2>Summary</h2>
-            <p>
-              Senior ML/CV professional with expertise in algorithm development,
-              edge AI deployment, and team leadership. Proven track record across
-              defense, automotive, and research domains.
-            </p>
-
-            <h2 style="margin-top:20px">Experience</h2>
-            <div class="cv-entry">
-              <h3>Senior Researcher — Controp <small>2025–Present</small></h3>
-              <ul>
-                <li>Developed real-time UAV/swarm detection with hybrid YOLO+RT-DETR architectures and QAT INT8 quantization on NVIDIA Jetson Orin.</li>
-                <li>Built cloud and local cluster training infrastructure for scalable model development and experiment management.</li>
-                <li>Established model error taxonomy and systematic data curation pipelines for detection dataset quality.</li>
-              </ul>
-            </div>
-
-            <div class="cv-entry">
-              <h3>AMR Algorithm Developer — Intel <small>2023–2025</small></h3>
-              <ul>
-                <li>Developed obstacle detection and mapping/localization solutions for large areas.</li>
-                <li>Optimized deep learning runtime with quantization and pruning for real-time deployment.</li>
-              </ul>
-            </div>
-
-            <div class="cv-entry">
-              <h3>Team Lead — Foresight Automotive <small>2021–2023</small></h3>
-              <ul>
-                <li>Led a team delivering multi-camera calibration and autonomous perception solutions.</li>
-                <li>Implemented auto-calibration pipelines for stereo systems in real-time applications.</li>
-              </ul>
-            </div>
-
-            <div class="cv-entry">
-              <h3>Researcher — Alibaba DAMO Academy <small>2019–2021</small></h3>
-              <ul>
-                <li>Built Auto-ML tools for multi-task DNN training; enhanced image quality and face manipulation algorithms.</li>
-              </ul>
-            </div>
-
-            <div class="cv-entry">
-              <h3>SLAM Engineer — InfinityAR <small>2017–2019</small></h3>
-              <ul>
-                <li>Developed stereo-IMU fusion SLAM engines optimized for mobile chipsets.</li>
-              </ul>
-            </div>
-
-            <div class="cv-entry">
-              <h3>Algorithm Developer — Inuitive <small>2013–2017</small></h3>
-              <ul>
-                <li>Designed stereo disparity estimation, depth segmentation, tracking, and real-time head detection pipelines.</li>
-              </ul>
-            </div>
-
-            <h2 style="margin-top:20px">Education</h2>
-            <ul>
-              <li>Post-Doc, Machine Learning — Weizmann Institute (1 publication, 1 patent)</li>
-              <li>PhD, Computational Neuroscience — Ben-Gurion University (5 publications)</li>
-              <li>MSc, Computational Biology — Tel-Aviv University (1 publication)</li>
-              <li>BSc, Mathematical Science & Life Science — Tel-Aviv University</li>
-            </ul>
-
-            <h2 style="margin-top:20px">Skills & Languages</h2>
-            <p>
-              Deep Learning · Computer Vision · Edge AI (Jetson Orin) · SLAM · Quantization/Pruning · Dataset Curation · Auto-ML · Team Leadership
-            </p>
-            <p style="margin-top:8px">Languages: English (fluent) · Hebrew (fluent) · Russian (fluent)</p>
-          </div>
+          <p class="interests">
+            <strong>Research interests:</strong> real-time object detection,
+            visual-inertial SLAM, quantization &amp; pruning for edge inference,
+            multi-camera calibration, dataset curation, and Auto-ML.
+          </p>
         </section>
 
-        <section id="contact" class="section card">
-          <div>
-            <h2>Contact</h2>
+        <section>
+          <h2>Selected projects</h2>
+
+          <article class="proj">
+            <h3>Real-time UAV &amp; swarm detection on edge GPUs</h3>
             <p>
-              Want to connect? Reach me through GitHub or add more contact
-              methods here.
+              A hybrid YOLO + RT-DETR detector with INT8 quantization-aware
+              training, running in real time on NVIDIA Jetson Orin, supported by
+              a model-error taxonomy that drives systematic data curation.
             </p>
+            <p class="tags">Object detection · QAT · Jetson Orin</p>
+          </article>
+
+          <article class="proj">
+            <h3>Perception for autonomous mobile robots</h3>
             <p>
-              <a href="https://github.com/genadiyvasserman" target="_blank" rel="noreferrer">
-                github.com/genadiyvasserman
+              Obstacle detection with large-area mapping and localization; the
+              deep-learning runtime is compressed via quantization and pruning
+              to meet real-time latency on-device.
+            </p>
+            <p class="tags">Mapping · Localization · Runtime optimization</p>
+          </article>
+
+          <article class="proj">
+            <h3>Multi-camera perception &amp; auto-calibration</h3>
+            <p>
+              Multi-camera calibration and autonomous perception, including
+              real-time auto-calibration pipelines for stereo systems.
+            </p>
+            <p class="tags">Stereo · Calibration · Autonomous driving</p>
+          </article>
+
+          <article class="proj">
+            <h3>Auto-ML for multi-task DNN training</h3>
+            <p>
+              Tooling that automates multi-task DNN training, with additional
+              work on image-quality enhancement and face-manipulation
+              algorithms.
+            </p>
+            <p class="tags">Auto-ML · Multi-task learning · Image quality</p>
+          </article>
+
+          <article class="proj">
+            <h3>Stereo-IMU fusion SLAM</h3>
+            <p>
+              A visual-inertial SLAM engine fusing stereo and IMU, optimized to
+              run within the compute budget of mobile chipsets.
+            </p>
+            <p class="tags">SLAM · Visual-inertial fusion · Embedded</p>
+          </article>
+
+          <article class="proj">
+            <h3>Stereo depth &amp; real-time tracking</h3>
+            <p>
+              Stereo disparity estimation, depth segmentation, object tracking,
+              and real-time head detection for embedded vision SoCs.
+            </p>
+            <p class="tags">Stereo depth · Segmentation · Tracking</p>
+          </article>
+        </section>
+
+        <section id="blog">
+          <h2>Blog</h2>
+          <ul class="posts">
+            <li>
+              <a class="post-link" href="posts/welcome.html">
+                <span class="post-title">Starting a notebook on edge perception</span>
+                <span class="post-date">June 2026</span>
               </a>
-            </p>
-          </div>
+              <p class="post-sum">
+                Why I’m writing here, and the kind of notes to expect — short,
+                practical pieces on real-time detection, SLAM, and squeezing
+                models onto edge hardware.
+              </p>
+            </li>
+            <!-- Add new posts at the top, newest first. Copy posts/welcome.html
+                 as a template for each new entry. -->
+          </ul>
+        </section>
+
+        <section>
+          <h2>Education</h2>
+          <ul class="edu">
+            <li>
+              <div class="deg">Post-Doctoral Fellow, Machine Learning <span class="yr">2012–2013</span></div>
+              <div class="inst">Weizmann Institute of Science</div>
+            </li>
+            <li>
+              <div class="deg">PhD, Computational Neuroscience <span class="yr">2007–2011</span></div>
+              <div class="inst">Ben-Gurion University of the Negev</div>
+            </li>
+            <li>
+              <div class="deg">MSc, Computational Biology <span class="yr">2003–2006</span></div>
+              <div class="inst">Tel-Aviv University</div>
+            </li>
+            <li>
+              <div class="deg">BSc, Mathematical &amp; Life Sciences <span class="yr">2000–2003</span></div>
+              <div class="inst">Tel-Aviv University</div>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Selected publications</h2>
+          <ol class="pubs">
+            <li>
+              A. Weissbrod, A. Shapiro, <b>G. Vasserman</b>, L. Edry, M. Dayan,
+              A. Yitzhaky, L. Hertzberg, O. Feinerman, T. Kimchi.
+              <span class="title">Automated long-term tracking and social
+              behavioural phenotyping of animal colonies within a semi-natural
+              environment.</span>
+              <span class="venue">Nature Communications, 2013.</span>
+            </li>
+            <li>
+              <b>G. Vasserman</b>, E. Schneidman, R. Segev.
+              <span class="title">Adaptive color contrast coding in the retina
+              efficiently matches natural scene statistics.</span>
+              <span class="venue">PLOS ONE, 2013.</span>
+            </li>
+            <li>
+              M. Wacht Katz, Z. Abramsky, B. P. Kotler, M. L. Rosenzweig,
+              O. Altstein, <b>G. Vasserman</b>.
+              <span class="title">Optimal foraging of Little Egrets in a patchy
+              environment.</span>
+              <span class="venue">The American Naturalist, 2013.</span>
+            </li>
+            <li>
+              A. Ben-Simon, O. Ben-Shahar, <b>G. Vasserman</b>, M. Ben-Tov,
+              R. Segev.
+              <span class="title">Visual acuity in the archer fish: behavior,
+              anatomy, and neurophysiology.</span>
+              <span class="venue">Journal of Vision, 2012.</span>
+            </li>
+            <li>
+              A. Ben-Simon, O. Ben-Shahar, <b>G. Vasserman</b>, R. Segev.
+              <span class="title">Predictive saccade in the absence of smooth
+              pursuit: interception of moving targets in the archer fish.</span>
+              <span class="venue">Journal of Experimental Biology, 2012.</span>
+            </li>
+            <li>
+              Z. Agur, O. U. Kirnasovsky, <b>G. Vasserman</b>,
+              L. Tencer-Hershkowicz, Y. Kogan, H. Harrison, et al.
+              <span class="title">Dickkopf1 regulates fate decision and drives
+              breast cancer stem cells to differentiation: an experimentally
+              supported mathematical model.</span>
+              <span class="venue">PLOS ONE, 2011.</span>
+            </li>
+            <li>
+              <b>G. Vasserman</b>, M. Shamir, R. Segev.
+              <span class="title">Coding “what” and “when” in the archer fish
+              retina.</span>
+              <span class="venue">PLoS Computational Biology, 2010.</span>
+            </li>
+            <li>
+              A. Plotkin, E. Paperno, <b>G. Vasserman</b>, R. Segev.
+              <span class="title">Magnetic tracking of eye motion in small,
+              fast-moving animals.</span>
+              <span class="venue">IEEE Transactions on Magnetics, 2008.</span>
+            </li>
+            <li>
+              <b>G. Vasserman</b>, L. G. Magal, J. Shepshelovich, E. Elifaz,
+              K. Hirschberg.
+              <span class="title">Processing of VSVG protein is not a
+              rate-limiting step for its efflux from the Golgi complex.</span>
+              <span class="venue">Biochem. Biophys. Res. Commun., 2006.</span>
+            </li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>Patents</h2>
+          <ul class="patents">
+            <li>
+              <span class="title">Method for automatic behavioral
+              phenotyping.</span>
+              <span class="venue">Yeda — US 2014/0167958.</span>
+            </li>
+            <li>
+              <span class="title">System and method for multiple feature
+              detection and analysis of a rotating tire.</span>
+              <span class="venue">Neomatix.</span>
+            </li>
+            <li>
+              <span class="title">Storing data retrieved from different sensors
+              for generating a 3-D image.</span>
+              <span class="venue">Inuitive.</span>
+            </li>
+          </ul>
         </section>
       </main>
-
-      <footer class="footer">
-        <p>Made with GitHub Pages.</p>
-      </footer>
     </div>
   </body>
 </html>
