@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+<title id="title">The production computer-vision stack is consolidating</title>
+<desc id="desc">Three architectures: classical rules, specialized learned pipeline, and Software 3.0 generalist models inside a deterministic shell.</desc>
+<rect width="1200" height="700" fill="#ffffff"/>
+<text x="50" y="54" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="700" fill="#20242b">The production computer-vision stack is consolidating</text>
+<text x="50" y="84" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#6a7079">Capability moves from code, to many learned modules, to a few general models.</text>
+<rect x="40" y="120" width="350" height="510" rx="14" fill="#fafafa" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="64" y="160" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#0b5fb0">Software 1.0</text>
+<text x="64" y="188" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#6a7079">Rules and classical vision</text>
+<rect x="420" y="120" width="350" height="510" rx="14" fill="#fafafa" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="444" y="160" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#b7791f">Software 2.0</text>
+<text x="444" y="188" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#6a7079">A learned model per task</text>
+<rect x="800" y="120" width="350" height="510" rx="14" fill="#fafafa" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="824" y="160" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#6b46c1">Software 3.0</text>
+<text x="824" y="188" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#6a7079">Generalists programmed by intent</text>
+<rect x="92" y="235" width="246" height="52" rx="9" fill="#ffffff" stroke="#0b5fb0" stroke-width="1.5"/>
+<text x="215.0" y="267.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">features</text>
+<text x="215" y="305" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" fill="#6a7079">↓</text>
+<rect x="92" y="313" width="246" height="52" rx="9" fill="#ffffff" stroke="#0b5fb0" stroke-width="1.5"/>
+<text x="215.0" y="345.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">geometry</text>
+<text x="215" y="383" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" fill="#6a7079">↓</text>
+<rect x="92" y="391" width="246" height="52" rx="9" fill="#ffffff" stroke="#0b5fb0" stroke-width="1.5"/>
+<text x="215.0" y="423.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">thresholds</text>
+<text x="215" y="461" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" fill="#6a7079">↓</text>
+<rect x="92" y="469" width="246" height="52" rx="9" fill="#ffffff" stroke="#0b5fb0" stroke-width="1.5"/>
+<text x="215.0" y="501.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">rules</text>
+<text x="215" y="575" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#6a7079">behavior written in code</text>
+<rect x="472" y="225" width="246" height="48" rx="9" fill="#ffffff" stroke="#b7791f" stroke-width="1.5"/>
+<text x="595.0" y="255.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">detector</text>
+<text x="595" y="287" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#6a7079">↓</text>
+<rect x="472" y="293" width="246" height="48" rx="9" fill="#ffffff" stroke="#b7791f" stroke-width="1.5"/>
+<text x="595.0" y="323.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">tracker</text>
+<text x="595" y="355" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#6a7079">↓</text>
+<rect x="472" y="361" width="246" height="48" rx="9" fill="#ffffff" stroke="#b7791f" stroke-width="1.5"/>
+<text x="595.0" y="391.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">pose model</text>
+<text x="595" y="423" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#6a7079">↓</text>
+<rect x="472" y="429" width="246" height="48" rx="9" fill="#ffffff" stroke="#b7791f" stroke-width="1.5"/>
+<text x="595.0" y="459.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">classifier</text>
+<text x="595" y="491" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#6a7079">↓</text>
+<rect x="472" y="497" width="246" height="48" rx="9" fill="#ffffff" stroke="#b7791f" stroke-width="1.5"/>
+<text x="595.0" y="527.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">rules + glue</text>
+<text x="595" y="595" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#6a7079">each model has its own data and failures</text>
+<rect x="852" y="235" width="246" height="72" rx="9" fill="#f3effb" stroke="#6b46c1" stroke-width="1.5"/>
+<text x="975.0" y="277.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">vision / video generalist</text>
+<text x="975" y="345" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" fill="#6a7079">+</text>
+<rect x="852" y="370" width="246" height="72" rx="9" fill="#f3effb" stroke="#6b46c1" stroke-width="1.5"/>
+<text x="975.0" y="412.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">language-action model</text>
+<text x="975" y="480" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#6a7079">inside</text>
+<rect x="830" y="500" width="290" height="75" rx="12" fill="#ffffff" stroke="#2f855a" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="975" y="531" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#2f855a">deterministic shell</text>
+<text x="975" y="557" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#6a7079">tools · memory · validators · control</text>
+<text x="975" y="608" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#6a7079">behavior specified by language, examples, and constraints</text>
+<text x="405" y="395" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="35" font-weight="400" fill="#e7e7e4">→</text>
+<text x="785" y="395" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="35" font-weight="400" fill="#e7e7e4">→</text>
+</svg>
