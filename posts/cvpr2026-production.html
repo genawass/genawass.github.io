@@ -35,7 +35,8 @@
         color: var(--text);
       }
       .scorebox,
-      .architecture {
+      .architecture,
+      .thesis {
         margin: 28px 0;
         padding: 18px 20px;
         border: 1px solid var(--rule);
@@ -48,13 +49,20 @@
         color: var(--muted);
       }
       .scorebox strong,
-      .architecture strong {
+      .architecture strong,
+      .thesis strong {
         color: var(--text);
       }
       .architecture {
         background: #fafafa;
         line-height: 1.8;
         text-align: center;
+      }
+      .thesis {
+        background: #f3effb;
+        border-color: #d8ccef;
+        font-size: 1rem;
+        line-height: 1.65;
       }
       .convergence {
         width: 100%;
@@ -187,6 +195,22 @@
           collapsing into one or two generalist models.</strong>
         </p>
 
+        <div class="thesis">
+          <strong>The new angle:</strong> detection, segmentation, tracking,
+          registration, localization, reconstruction, and forecasting are no
+          longer evolving only as separate models. They are becoming queries over
+          a shared visual state that preserves correspondence across sensors,
+          viewpoints, space, and time.
+        </div>
+
+        <img class="graphic" src="cvpr2026-production/03_pipeline_collapse.svg"
+          alt="Multiple visual sensors flowing into one shared correspondence and world model that supports detection, segmentation, tracking, registration, localization, reconstruction, reasoning, and forecasting" />
+        <p class="chart-cap">
+          The pipeline does not disappear because one model learned eight labels.
+          It disappears because one persistent representation can answer eight
+          different questions.
+        </p>
+
         <p>
           Andrej Karpathy's Software 2.0 described the move from human-written
           rules to neural networks trained from data. Software 3.0 pushes the
@@ -241,6 +265,20 @@
           models detect, segment, track, retrieve, describe, reason, and sometimes
           act. Language, visual examples, and tool calls become the interfaces for
           specifying what the system should do.
+        </p>
+
+        <p>
+          The clearest CVPR 2026 evidence is not another larger VLM. It is the
+          spread of multitask visual architectures:
+          <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Kang_UETrack_A_Unified_and_Efficient_Framework_for_Single_Object_Tracking_CVPR_2026_paper.html" target="_blank" rel="noreferrer">UETrack</a>
+          uses one model across RGB, thermal, depth, event, and language;
+          <a href="https://openaccess.thecvf.com/content/CVPR2026F/html/Heo_Autoregressive_Universal_Video_Segmentation_Model_CVPRF_2026_paper.html" target="_blank" rel="noreferrer">AUSM</a>
+          unifies prompted segmentation with detect-and-track-everything;
+          <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Goswami_UniCorrn_Unified_Correspondence_Transformer_Across_2D_and_3D_CVPR_2026_paper.html" target="_blank" rel="noreferrer">UniCorrn</a>
+          shares weights across 2D–2D, 2D–3D, and 3D–3D matching; and
+          <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Karhade_Any4D_Unified_Feed-Forward_Metric_4D_Reconstruction_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Any4D</a>
+          jointly represents metric geometry and motion while accepting optional
+          RGB-D, IMU, and radar inputs.
         </p>
 
         <div class="scorebox">
