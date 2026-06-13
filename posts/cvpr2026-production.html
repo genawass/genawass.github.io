@@ -5,102 +5,58 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNJHN77SZF"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);} 
-      gtag('js', new Date());
-      gtag('config', 'G-HNJHN77SZF');
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-HNJHN77SZF");
     </script>
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Computer Vision Is Becoming Software 3.0 — Genadiy Vasserman</title>
+    <title>What CVPR 2026 Says About Production Computer Vision — Genadiy Vasserman</title>
     <meta
       name="description"
-      content="CVPR 2026 suggests production vision is moving from pipelines of specialized models toward generalist models programmed with language, examples, and tools."
+      content="A production-oriented review of 84 CVPR 2026 papers: what can ship now, what is near, and where research still outruns deployment."
     />
 
     <meta property="og:type" content="article" />
-    <meta property="og:title" content="Computer Vision Is Becoming Software 3.0" />
+    <meta property="og:title" content="What CVPR 2026 Says About Production Computer Vision" />
     <meta
       property="og:description"
-      content="Production vision is moving from pipelines of specialized models toward generalist models programmed with language, examples, and tools."
+      content="A practical review of 84 papers across 14 production computer-vision themes."
     />
     <meta property="og:url" content="https://genawass.github.io/posts/cvpr2026-production.html" />
     <meta property="og:site_name" content="Genadiy Vasserman" />
-    <meta property="og:image" content="https://genawass.github.io/posts/cvpr2026-production/share.png" />
+    <meta property="og:image" content="https://genawass.github.io/posts/cvpr2026-production/share-production.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Computer Vision Is Becoming Software 3.0" />
+    <meta name="twitter:title" content="What CVPR 2026 Says About Production Computer Vision" />
     <meta
       name="twitter:description"
-      content="What 84 production-oriented CVPR 2026 papers reveal about the next computer-vision stack."
+      content="What can ship now, what is near, and where research still outruns deployment."
     />
-    <meta name="twitter:image" content="https://genawass.github.io/posts/cvpr2026-production/share.png" />
+    <meta name="twitter:image" content="https://genawass.github.io/posts/cvpr2026-production/share-production.png" />
 
     <link rel="stylesheet" href="../styles.css" />
     <style>
-      .lede {
-        font-size: 1.12rem;
-        color: var(--text);
-      }
-      .scorebox,
-      .architecture,
-      .thesis {
+      .lede { font-size: 1.12rem; color: var(--text); }
+      .scorebox, .thesis {
         margin: 28px 0;
         padding: 18px 20px;
         border: 1px solid var(--rule);
         border-radius: 8px;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
-          Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         font-size: 0.91rem;
       }
-      .scorebox {
-        color: var(--muted);
-      }
-      .scorebox strong,
-      .architecture strong,
-      .thesis strong {
-        color: var(--text);
-      }
-      .architecture {
-        background: #fafafa;
-        line-height: 1.8;
-        text-align: center;
-      }
+      .scorebox { color: var(--muted); }
+      .scorebox strong, .thesis strong { color: var(--text); }
       .thesis {
         background: #f3effb;
         border-color: #d8ccef;
         font-size: 1rem;
         line-height: 1.65;
       }
-      .convergence {
-        width: 100%;
-        margin: 28px 0 34px;
-        border-collapse: collapse;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
-          Arial, sans-serif;
-        font-size: 0.86rem;
-      }
-      .convergence th,
-      .convergence td {
-        padding: 11px 10px;
-        border-bottom: 1px solid var(--rule);
-        text-align: left;
-        vertical-align: top;
-      }
-      .convergence th {
-        color: var(--muted);
-        font-weight: 500;
-      }
-      .graphic {
-        width: 100%;
-        display: block;
-        margin: 30px 0 10px;
-      }
-      .chart-embed {
-        width: 100%;
-        margin: 30px 0 10px;
-      }
+      .chart-embed { width: 100%; margin: 30px 0 10px; }
       .chart-embed iframe {
         width: 100%;
         height: 720px;
@@ -111,8 +67,7 @@
       }
       .chart-cap {
         margin: 0 auto 36px;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
-          Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         font-size: 0.86rem;
         color: var(--muted);
         text-align: center;
@@ -124,24 +79,12 @@
         border-radius: 10px;
         background: #fff;
       }
-      .paper-preview {
-        width: 100%;
-        display: block;
-        border-bottom: 1px solid var(--rule);
-        background: #fafafa;
-      }
-      .paper-copy {
-        padding: 16px 18px 18px;
-      }
-      .paper p {
-        margin: 5px 0;
-      }
-      .paper .paper-title {
-        font-weight: 600;
-      }
+      .paper-preview { width: 100%; display: block; border-bottom: 1px solid var(--rule); background: #fafafa; }
+      .paper-copy { padding: 16px 18px 18px; }
+      .paper p { margin: 5px 0; }
+      .paper .paper-title { font-weight: 600; }
       .paper .grade {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
-          Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         font-size: 0.82rem;
         color: var(--muted);
       }
@@ -150,8 +93,7 @@
         flex-wrap: wrap;
         gap: 7px;
         margin-top: 13px;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
-          Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         font-size: 0.8rem;
       }
       .paper-links a {
@@ -160,17 +102,8 @@
         border-radius: 999px;
         text-decoration: none;
       }
-      .paper-links a:hover {
-        border-color: var(--text);
-      }
-      .post-body ol,
-      .post-body ul {
-        margin: 0 0 18px;
-        padding-left: 1.3rem;
-      }
-      .post-body li {
-        margin-bottom: 8px;
-      }
+      .post-body ul { margin: 0 0 18px; padding-left: 1.3rem; }
+      .post-body li { margin-bottom: 8px; }
       .note {
         margin-top: 44px;
         padding-top: 18px;
@@ -189,113 +122,45 @@
       </p>
 
       <header class="post-head">
-        <h1>Computer Vision Is Becoming Software 3.0</h1>
+        <h1>What CVPR 2026 Says About Production Computer Vision</h1>
         <time datetime="2026-06">June 2026</time>
       </header>
 
       <div class="post-body">
         <p class="lede">
-          In the <a href="cvpr2026.html">first pass over CVPR 2026</a>, I mapped
-          all 5,010 accepted papers. Then I reviewed 84 of them through a
-          production lens. The strongest pattern was not one task or model family.
-          It was architectural: <strong>the classic computer-vision pipeline is
-          collapsing into one or two generalist models.</strong>
+          In my <a href="cvpr2026.html">first pass over CVPR 2026</a>, I mapped
+          all 5,010 accepted papers. For this second pass, I reviewed 84 papers
+          through a narrower lens: <strong>which research directions are becoming
+          useful building blocks for real products?</strong>
         </p>
 
         <div class="thesis">
-          <strong>The new angle:</strong> detection, segmentation, tracking,
-          registration, localization, reconstruction, and forecasting are no
-          longer evolving only as separate models. They are becoming queries over
-          a shared visual state that preserves correspondence across sensors,
-          viewpoints, space, and time.
+          <strong>The practical result:</strong> production value and academic
+          novelty are different axes. Some incremental papers are immediately
+          useful; some of the most ambitious architectures remain far from a
+          dependable deployment.
         </div>
 
-        <img class="graphic" src="cvpr2026-production/03_pipeline_collapse.svg"
-          alt="Multiple visual sensors flowing into one shared correspondence and world model that supports detection, segmentation, tracking, registration, localization, reconstruction, reasoning, and forecasting" />
-        <p class="chart-cap">
-          The pipeline does not disappear because one model learned a few more
-          labels. It disappears because one persistent representation can answer
-          many different questions.
+        <p>
+          Computer-vision research is usually organized by tasks: detection,
+          segmentation, tracking, reconstruction, generation. Production systems
+          are organized by outcomes. A useful product may need to detect an
+          unfamiliar object, follow it through video, understand its spatial
+          context, explain the result, and improve after deployment.
         </p>
 
         <p>
-          Andrej Karpathy's Software 2.0 described the move from human-written
-          rules to neural networks trained from data. His Software 3.0 pushes the
-          interface one level higher: increasingly, we describe the desired
-          behavior in language and examples, and a general model figures out how
-          to perform it.
-        </p>
-
-        <p>
-          Computer vision appears to be entering its own version of that
-          transition.
-        </p>
-
-        <h2>The pipeline we have been building</h2>
-        <p>
-          A traditional production vision system is a chain of specialized
-          components. A simplified video-analytics stack might look like this:
-        </p>
-
-        <p>
-          Think: ISP → detector → tracker → pose model → classifier → rules
-          engine → database → reporting.
-        </p>
-
-        <p>
-          Some components are classical algorithms, some are learned models, and
-          the rest is glue code. Each model has its own dataset, labels,
-          thresholds, metrics, deployment path, and failure modes. A new class
-          means retraining the detector. A new behavior means training another
-          classifier. A new camera or site means recalibration and adaptation.
-        </p>
-
-        <p>
-          This architecture can be reliable, inspectable, and efficient. I have
-          spent much of my career building versions of it. It is also expensive
-          to extend: complexity grows roughly with the number of capabilities.
-        </p>
-
-        <p>
-          CVPR 2026 suggests a different stack is taking shape:
-        </p>
-
-        <img class="graphic" src="cvpr2026-production/01_architecture.svg"
-          alt="Evolution from classical computer vision, to specialized learned models, to Software 3.0 generalist models inside a deterministic shell" />
-        <p class="chart-cap">
-          The unit of development shifts from code, to individual learned modules,
-          to a few general models surrounded by constraints.
-        </p>
-
-        <p>
-          Instead of adding a model for every task, a small number of generalist
-          models detect, segment, track, retrieve, describe, reason, and sometimes
-          act. Language, visual examples, and tool calls become the interfaces for
-          specifying what the system should do.
-        </p>
-
-        <p>
-          The clearest CVPR 2026 evidence is not another larger VLM. It is the
-          spread of multitask visual architectures:
-          <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Kang_UETrack_A_Unified_and_Efficient_Framework_for_Single_Object_Tracking_CVPR_2026_paper.html" target="_blank" rel="noreferrer">UETrack</a>
-          uses one model across RGB, thermal, depth, event, and language;
-          <a href="https://openaccess.thecvf.com/content/CVPR2026F/html/Heo_Autoregressive_Universal_Video_Segmentation_Model_CVPRF_2026_paper.html" target="_blank" rel="noreferrer">AUSM</a>
-          unifies prompted segmentation with detect-and-track-everything;
-          <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Goswami_UniCorrn_Unified_Correspondence_Transformer_Across_2D_and_3D_CVPR_2026_paper.html" target="_blank" rel="noreferrer">UniCorrn</a>
-          shares weights across 2D–2D, 2D–3D, and 3D–3D matching; and
-          <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Karhade_Any4D_Unified_Feed-Forward_Metric_4D_Reconstruction_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Any4D</a>
-          jointly represents metric geometry and motion while accepting optional
-          RGB-D, IMU, and radar inputs.
+          I grouped the conference into 14 broad production areas and shortlisted
+          six papers in each. Every paper was graded on three separate questions:
+          product usefulness, novelty, and distance from deployment.
         </p>
 
         <div class="scorebox">
-          I grouped CVPR 2026 into 14 production areas and shortlisted 84 papers.
-          <strong>28</strong> of the 84 earned an A for production usefulness. By
-          deployment readiness, <strong>38</strong> looked usable now,
-          <strong>18</strong> near-term, and <strong>28</strong> remained
-          research-stage. Production usefulness had almost no correlation with
-          Main-conference versus Findings placement: academic contribution and
-          product value are different axes.
+          Of the <strong>84</strong> reviewed papers, <strong>28</strong> earned
+          an A for production usefulness. By readiness, <strong>38</strong>
+          looked usable now, <strong>18</strong> near-term, and
+          <strong>28</strong> remained research-stage. Production usefulness had
+          almost no relationship to Main-conference versus Findings placement.
         </div>
 
         <div class="chart-embed">
@@ -303,19 +168,19 @@
             title="Readiness distribution across 14 production computer-vision themes"></iframe>
         </div>
         <p class="chart-cap">
-          Six shortlisted papers per theme, graded by distance from practical
-          deployment. Consolidation is visible, but readiness remains uneven.
+          Six shortlisted papers per production theme.
           <a href="cvpr2026-production/shortlisted-papers.md" download>
             Download the full 84-paper Markdown appendix
           </a>.
         </p>
 
-        <h2>The class list becomes a prompt</h2>
+        <h2>Open vocabulary is becoming practical</h2>
         <p>
-          The clearest Software 3.0 signal is open-vocabulary perception. In the
-          old pipeline, the detector's class list is compiled into its weights.
-          Adding a class is a data and training project. In the emerging stack,
-          the class list becomes an input.
+          Fixed class lists remain one of the largest costs in deployed vision.
+          Adding a new category usually means collecting examples, annotating
+          them, retraining, validating, and redeploying. Open-vocabulary
+          perception changes that interface, even if reliability on unseen
+          categories still separates a useful product from a compelling demo.
         </p>
 
         <div class="paper">
@@ -325,9 +190,9 @@
             <p class="paper-title">Exploring Hierarchical Consistency and Unbiased Objectness for Open-Vocabulary Object Detection</p>
             <p class="grade">Production grade A · usable now · medium novelty</p>
             <p>
-              It improves open-vocabulary detection by addressing unreliable
-              pseudo-labels and proposal networks biased toward known categories.
-              The research step is incremental; the product implication is not.
+              It addresses unreliable pseudo-labels and proposal networks biased
+              toward known classes. The research step is incremental, but it
+              attacks two practical failure modes in open-vocabulary detection.
             </p>
             <div class="paper-links">
               <a href="https://openaccess.thecvf.com/content/CVPR2026F/html/Lee_Exploring_Hierarchical_Consistency_and_Unbiased_Objectness_for_Open-Vocabulary_Object_Detection_CVPRF_2026_paper.html" target="_blank" rel="noreferrer">Paper</a>
@@ -344,9 +209,9 @@
             <p class="paper-title">Towards Open-Vocabulary Industrial Defect Understanding</p>
             <p class="grade">Production grade A · usable now · medium novelty</p>
             <p>
-              The same interface reaches industrial inspection: ask about a defect
-              outside the fixed catalog instead of treating every new failure mode
-              as a new model-development cycle.
+              A million aligned image-text pairs push open-vocabulary reasoning
+              into industrial inspection, where long-tail failures make fixed
+              defect catalogs especially costly.
             </p>
             <div class="paper-links">
               <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Ni_Towards_Open-Vocabulary_Industrial_Defect_Understanding_with_a_Large-Scale_Multimodal_Dataset_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Paper</a>
@@ -355,41 +220,13 @@
           </div>
         </div>
 
+        <h2>Video products need persistent evaluation</h2>
         <p>
-          This is not yet magic. Open-ended recognition is harder to validate than
-          a fixed classifier, and a language prompt is an ambiguous specification.
-          But it changes how a product is extended: more behavior moves from model
-          training into interaction with a general model.
+          Many deployed video systems still process a stream as nearly independent
+          frames. Research is moving toward persistent state and broader video
+          understanding, but production value often comes from measuring the ugly
+          cases: camera shake, occlusion, scale changes, re-entry, and long gaps.
         </p>
-
-        <h2>Separate video modules become one temporal model</h2>
-        <p>
-          Video systems traditionally bolt memory onto image models: detect each
-          frame, associate boxes, classify clips, then write rules over the
-          results. Generalist video models are beginning to absorb those
-          boundaries.
-        </p>
-
-        <div class="paper">
-          <img class="paper-preview" loading="lazy" src="cvpr2026-production/paper-03.svg"
-            alt="Molmo2 inputs, shared video-language model, and capabilities" />
-          <div class="paper-copy">
-            <p class="paper-title">Molmo2</p>
-            <p class="grade">Production grade B · usable now · high novelty</p>
-            <p>
-              Open weights plus point and track grounding across video make one
-              model useful for search, annotation, grounding, and operator-facing
-              interaction. It is not a finished production system, but it shows the
-              direction clearly.
-            </p>
-            <div class="paper-links">
-              <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Clark_Molmo2_Open_Weights_and_Data_for_Vision-Language_Models_with_Video_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Paper</a>
-              <a href="https://arxiv.org/abs/2601.10611" target="_blank" rel="noreferrer">arXiv</a>
-              <a href="https://github.com/allenai/molmo2" target="_blank" rel="noreferrer">Code</a>
-              <a href="https://playground.allenai.org/?model=molmo2-8b" target="_blank" rel="noreferrer">Demo</a>
-            </div>
-          </div>
-        </div>
 
         <div class="paper">
           <img class="paper-preview" loading="lazy" src="cvpr2026-production/paper-04.svg"
@@ -398,10 +235,9 @@
             <p class="paper-title">Breaking Smooth-Motion Assumptions</p>
             <p class="grade">Production grade A · near-term · medium novelty</p>
             <p>
-              This benchmark is a useful warning about consolidation: a general
-              model still has to survive camera shake, occlusion, scale changes, and
-              non-smooth motion. Broader capability does not remove the need for
-              hard, deployment-shaped evaluation.
+              DynUAV deliberately breaks the smooth-motion assumptions behind many
+              tracking benchmarks. It is valuable less as a product component than
+              as a deployment-shaped test of whether a tracker will survive reality.
             </p>
             <div class="paper-links">
               <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Ye_Breaking_Smooth-Motion_Assumptions_A_UAV_Benchmark_for_Multi-Object_Tracking_in_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Paper</a>
@@ -410,120 +246,32 @@
           </div>
         </div>
 
-        <p>
-          The emerging video product is less "detector plus tracker plus event
-          classifier" and more a persistent model that can answer: what happened,
-          where, to which object, and what should I keep watching?
-        </p>
-
-        <h2>The hidden unifier is correspondence</h2>
-        <p>
-          My first shortlist underweighted the strongest version of this trend.
-          It treated detection, tracking, registration, localization, multiview
-          perception, and multimodal fusion as neighboring product areas. A better
-          reading is that they are increasingly different queries over the same
-          problem: <strong>which observation corresponds to which entity, point,
-          place, or state?</strong>
-        </p>
-
-        <table class="convergence">
-          <thead>
-            <tr><th>Old pipeline boundary</th><th>Collapsing into</th><th>Evidence</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>RGB tracker · thermal tracker · depth tracker</td>
-              <td>one sensor-agnostic tracker</td>
-              <td><a href="https://openaccess.thecvf.com/content/CVPR2026/html/Kang_UETrack_A_Unified_and_Efficient_Framework_for_Single_Object_Tracking_CVPR_2026_paper.html" target="_blank" rel="noreferrer">UETrack</a></td>
-            </tr>
-            <tr>
-              <td>detector · segmenter · mask tracker</td>
-              <td>one streaming segmentation state</td>
-              <td><a href="https://openaccess.thecvf.com/content/CVPR2026F/html/Heo_Autoregressive_Universal_Video_Segmentation_Model_CVPRF_2026_paper.html" target="_blank" rel="noreferrer">AUSM</a> · <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Norouzi_VidEoMT_Your_ViT_is_Secretly_Also_a_Video_Segmentation_Model_CVPR_2026_paper.html" target="_blank" rel="noreferrer">VidEoMT</a></td>
-            </tr>
-            <tr>
-              <td>2D matcher · 2D–3D matcher · point-cloud registration</td>
-              <td>one correspondence model</td>
-              <td><a href="https://openaccess.thecvf.com/content/CVPR2026/html/Goswami_UniCorrn_Unified_Correspondence_Transformer_Across_2D_and_3D_CVPR_2026_paper.html" target="_blank" rel="noreferrer">UniCorrn</a></td>
-            </tr>
-            <tr>
-              <td>VIO · map matching · rangefinder target localization</td>
-              <td>live pixel-to-3D registration</td>
-              <td><a href="https://openaccess.thecvf.com/content/CVPR2026/html/Cheng_PiLoT_Neural_Pixel-to-3D_Registration_for_UAV-based_Ego_and_Target_Geo-localization_CVPR_2026_paper.html" target="_blank" rel="noreferrer">PiLoT</a></td>
-            </tr>
-            <tr>
-              <td>cross-view matching · geometry · segmentation</td>
-              <td>geometry-aligned object correspondence</td>
-              <td><a href="https://openaccess.thecvf.com/content/CVPR2026/html/Gao_VGGT-Segmentor_Geometry-Enhanced_Cross-View_Segmentation_CVPR_2026_paper.html" target="_blank" rel="noreferrer">VGGT-Segmentor</a></td>
-            </tr>
-          </tbody>
-        </table>
-
         <div class="paper">
-          <img class="paper-preview" loading="lazy" src="cvpr2026-production/paper-09.svg"
-            alt="UniCorrn inputs, one shared-weight correspondence transformer, and 2D/3D matching capabilities" />
+          <img class="paper-preview" loading="lazy" src="cvpr2026-production/paper-03.svg"
+            alt="Molmo2 inputs, shared video-language model, and capabilities" />
           <div class="paper-copy">
-            <p class="paper-title">UniCorrn: Unified Correspondence Transformer Across 2D and 3D</p>
-            <p class="grade">Architecture-shift pick · shared weights across 2D–2D, 2D–3D, and 3D–3D matching</p>
+            <p class="paper-title">Molmo2</p>
+            <p class="grade">Production grade B · usable now · high novelty</p>
             <p>
-              One correspondence model, with shared weights, for image-to-image,
-              image-to-point-cloud, and point-cloud-to-point-cloud matching. It is
-              the cleanest single illustration of the thesis: tasks that used to
-              demand separate matchers become one model.
+              Open weights plus point and track grounding across video make it a
+              promising component for search, annotation, and operator-facing
+              interaction. It still needs application-specific validation.
             </p>
             <div class="paper-links">
-              <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Goswami_UniCorrn_Unified_Correspondence_Transformer_Across_2D_and_3D_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Paper</a>
-              <a href="https://arxiv.org/abs/2605.04044" target="_blank" rel="noreferrer">arXiv</a>
+              <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Clark_Molmo2_Open_Weights_and_Data_for_Vision-Language_Models_with_Video_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Paper</a>
+              <a href="https://github.com/allenai/molmo2" target="_blank" rel="noreferrer">Code</a>
+              <a href="https://playground.allenai.org/?model=molmo2-8b" target="_blank" rel="noreferrer">Demo</a>
             </div>
           </div>
         </div>
 
+        <h2>Spatial vision is approaching operational speed</h2>
         <p>
-          This is more consequential than simply using a bigger model. A shared
-          correspondence representation lets identity, geometry, and semantics
-          survive changes in camera, sensor, viewpoint, and time. That is the
-          substrate on which the specialized stages can disappear.
+          Reconstruction and scene modeling have long produced impressive
+          results. Their production bottlenecks are speed, stability, calibration,
+          and the cost of maintaining a coherent scene over time. The strongest
+          papers increasingly address those operational constraints directly.
         </p>
-
-        <h2>Geometry is being absorbed too</h2>
-        <p>
-          The same consolidation is happening in spatial vision. Depth, camera
-          pose, point tracking, reconstruction, and scene representation have
-          historically been separate modules. New models increasingly expose
-          several of them through one representation or query interface.
-        </p>
-
-        <p>
-          In that framing, 4D is not merely animated 3D or better rendering. It is
-          a persistent scene state combining geometry and motion, updated from
-          streaming observations and queried for perception tasks.
-          <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Karhade_Any4D_Unified_Feed-Forward_Metric_4D_Reconstruction_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Any4D</a>
-          unifies dense metric geometry and motion across optional sensors;
-          <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Hou_DetAny4D_Detect_Anything_4D_Temporally_in_a_Streaming_RGB_Video_CVPR_2026_paper.html" target="_blank" rel="noreferrer">DetAny4D</a>
-          turns open-set detection into persistent streaming 4D perception; and
-          <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Liu_Point4Cast_Streaming_Dynamic_Scene_Reconstruction_and_Forecasting_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Point4Cast</a>
-          extends the same state from reconstruction into forecasting.
-        </p>
-
-        <div class="paper">
-          <img class="paper-preview" loading="lazy" src="cvpr2026-production/paper-05.svg"
-            alt="D4RT video and query inputs, shared transformer, and geometry-motion capabilities" />
-          <div class="paper-copy">
-            <p class="paper-title">Efficiently Reconstructing Dynamic Scenes One D4RT at a Time</p>
-            <p class="grade">Production grade B · usable now · medium novelty</p>
-            <p>
-              A unified query-based decoder handles depth, pose, tracking, and
-              dynamic reconstruction. That is exactly the architectural move:
-              several specialized outputs become views into one learned scene
-              model.
-            </p>
-            <div class="paper-links">
-              <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Zhang_Efficiently_Reconstructing_Dynamic_Scenes_One_D4RT_at_a_Time_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Paper</a>
-              <a href="https://arxiv.org/abs/2512.08924" target="_blank" rel="noreferrer">arXiv</a>
-              <a href="https://d4rt-paper.github.io/" target="_blank" rel="noreferrer">Demo</a>
-            </div>
-          </div>
-        </div>
 
         <div class="paper">
           <img class="paper-preview" loading="lazy" src="cvpr2026-production/paper-06.svg"
@@ -532,9 +280,9 @@
             <p class="paper-title">SDGS: Spatial Difference Guided Gaussian Splatting</p>
             <p class="grade">Production grade A · usable now · medium novelty</p>
             <p>
-              Faster pose optimization and a sparse spatial representation show
-              that these unified scene models are beginning to address operational
-              constraints, not only rendering quality.
+              Faster pose optimization and a sparse spatial representation make
+              simultaneous localization and reconstruction more relevant to live
+              mapping, inspection, and digital-twin workflows.
             </p>
             <div class="paper-links">
               <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Tian_SDGS_Spatial_Difference_Guided_Gaussian_Splatting_for_Simultaneous_Localization_and_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Paper</a>
@@ -542,12 +290,30 @@
           </div>
         </div>
 
-        <h2>Perception and action become one learned loop</h2>
+        <div class="paper">
+          <img class="paper-preview" loading="lazy" src="cvpr2026-production/paper-05.svg"
+            alt="D4RT video and query inputs, shared transformer, and geometry-motion capabilities" />
+          <div class="paper-copy">
+            <p class="paper-title">Efficiently Reconstructing Dynamic Scenes One D4RT at a Time</p>
+            <p class="grade">Production grade B · usable now · medium novelty</p>
+            <p>
+              A unified query interface for depth, pose, tracking, and dynamic
+              reconstruction is strategically important, but broad capability
+              raises a broader validation burden.
+            </p>
+            <div class="paper-links">
+              <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Zhang_Efficiently_Reconstructing_Dynamic_Scenes_One_D4RT_at_a_Time_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Paper</a>
+              <a href="https://d4rt-paper.github.io/" target="_blank" rel="noreferrer">Demo</a>
+            </div>
+          </div>
+        </div>
+
+        <h2>Vision is beginning to close the loop</h2>
         <p>
-          The strongest version of this idea appears in robotics. If the model
-          can understand an instruction, choose what to observe, and act, then the
-          boundary between perception pipeline and application logic starts to
-          disappear.
+          Active perception and vision-language-action models are among the most
+          strategically important directions in the review. A system that chooses
+          where to look and how to act can automate a complete workflow rather
+          than merely describe an image.
         </p>
 
         <div class="paper">
@@ -557,40 +323,22 @@
             <p class="paper-title">SaPaVe: Active Perception and Manipulation in Vision-Language Action Models</p>
             <p class="grade">Production grade A · usable now · medium novelty</p>
             <p>
-              The robot does not passively accept the current camera view. It learns
-              to gather the visual information needed to complete the task. The
-              instruction increasingly specifies the goal; the model decides part
-              of the procedure.
+              The robot learns to gather the visual information needed to complete
+              a task instead of passively accepting the current camera view.
+              Closed-loop reliability and recovery behavior remain the hard part.
             </p>
             <div class="paper-links">
               <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Liu_SaPaVe_Towards_Active_Perception_and_Manipulation_in_Vision-Language_Action_Models_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Paper</a>
-              <a href="https://arxiv.org/abs/2603.12193" target="_blank" rel="noreferrer">arXiv</a>
               <a href="https://lmzpai.github.io/SaPaVe/" target="_blank" rel="noreferrer">Demo</a>
             </div>
           </div>
         </div>
 
+        <h2>Deployment itself is becoming a research topic</h2>
         <p>
-          This is close to Software 3.0 in the literal sense: natural language
-          becomes a programming interface for a learned system. It is also where
-          the risks become most concrete. Once a model controls something
-          physical, latency, recovery behavior, safety constraints, and
-          verification matter more than an average benchmark score.
-        </p>
-
-        <h2>One model does not mean no system</h2>
-        <p>
-          It is tempting to extrapolate toward one giant model replacing the
-          entire stack. I do not think that is what robust production systems will
-          look like.
-        </p>
-
-        <p>
-          Generalist models are difficult to bound. They can hallucinate,
-          misunderstand an instruction, regress on a capability after adaptation,
-          or fail in ways that are hard to reproduce. Classical geometry,
-          databases, control loops, safety limits, and validation logic remain
-          valuable precisely because their behavior is constrained.
+          Some of the strongest production signals are not new application ideas.
+          They are papers that explicitly target latency, power, hardware
+          variation, adaptation, and integration into an existing system.
         </p>
 
         <div class="paper">
@@ -600,9 +348,9 @@
             <p class="paper-title">Efficient Real-Time Raw-to-Raw Denoising for Extreme Low-Light Ultra HD Video on Mobile Devices</p>
             <p class="grade">Production grade A · usable now · medium novelty</p>
             <p>
-              This paper is a useful counterweight to the generalist-model story. It
-              targets latency, power, temporal consistency, and integration into an
-              existing ISP. Shipping still means respecting the surrounding system.
+              The work targets a real product specification: latency, power,
+              temporal consistency, and integration with an existing image-signal
+              processing pipeline.
             </p>
             <div class="paper-links">
               <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Pochimireddy_Efficient_Real-Time_Raw-to-Raw_Denoising_for_Extreme_Low-Light_Ultra_HD_Video_CVPR_2026_paper.html" target="_blank" rel="noreferrer">Paper</a>
@@ -610,63 +358,47 @@
           </div>
         </div>
 
+        <h2>Where research still outruns production</h2>
         <p>
-          The architecture I expect is therefore not one model alone. It is:
-        </p>
-
-        <div class="architecture">
-          <strong>one or two generalist learned models</strong><br />
-          surrounded by<br />
-          <strong>a smaller, stricter deterministic shell</strong>
-        </div>
-
-        <p>
-          The model handles fuzzy perception, language, retrieval, and adaptation.
-          The shell handles permissions, geometry where exactness matters, state,
-          latency budgets, business rules, validation, and safe action. The
-          engineering challenge shifts from connecting many narrow models to
-          constraining and evaluating a few broad ones.
-        </p>
-
-        <h2>The new work moves to evaluation and data</h2>
-        <p>
-          In the specialized-pipeline world, adding capability often means adding
-          a model. In the generalist-model world, adding capability increasingly
-          means supplying examples, prompts, tools, memory, and feedback.
+          Generative visual media remains the clearest example. All six
+          shortlisted generative-media papers received production grade B, and
+          five were research-stage. That does not mean they lack commercial
+          value. It means their path to a dependable product is highly
+          application-dependent.
         </p>
 
         <p>
-          That does not eliminate engineering. It moves it. The difficult work
-          becomes:
+          Content creation can tolerate iteration and human review. Inspection,
+          medicine, autonomy, and measurement cannot tolerate invented details or
+          inconsistent outputs. The same caution applies to diffusion-based
+          restoration and reconstruction: a visually convincing result is not
+          automatically a faithful one.
         </p>
 
+        <h2>The practical takeaway</h2>
+        <p>
+          CVPR 2026 does not point to one dominant computer-vision product. It
+          points to a broader set of increasingly useful capabilities:
+        </p>
         <ul>
-          <li>building deployment-shaped evaluations rather than one benchmark score;</li>
-          <li>curating examples and failure cases that specify desired behavior;</li>
-          <li>deciding which outputs require deterministic verification;</li>
-          <li>measuring latency and cost across a model with many capabilities;</li>
-          <li>detecting regressions when the shared model changes;</li>
-          <li>keeping the general model on a short leash around irreversible actions.</li>
+          <li>open-ended perception instead of only fixed class lists;</li>
+          <li>persistent video understanding instead of frame-only inference;</li>
+          <li>spatial scene models fast enough for operational workflows;</li>
+          <li>active perception and action instead of passive observation;</li>
+          <li>continuous adaptation, evaluation, and deployment tooling.</li>
         </ul>
 
         <p>
-          This may be the most important production trend in CVPR 2026. Computer
-          vision is not simply getting better at more tasks. The unit of
-          development is changing: from a pipeline of individually trained models
-          toward a general visual system that is programmed through intent,
-          examples, and constraints.
+          The architectural question behind several of these trends deserves its
+          own treatment. I explore it separately in
+          <a href="vision-pipeline-inside-model.html">The Pipeline Is Moving Inside the Model</a>.
         </p>
 
         <p class="note">
           <strong>Method &amp; caveats.</strong> I grouped CVPR 2026 into 14 broad
-          production themes and reviewed the top six papers in each: 84 papers in
-          total. Production grade measures direct usefulness and adaptation cost,
-          not academic quality. I also added a separate architecture-shift
-          shortlist because broad semantic ranking underweights papers whose main
-          contribution crosses several task boundaries. The Software 3.0 framing
-          here is an analogy to the natural-language interface and generalist-model
-          architecture; many reliable vision products will remain hybrid systems. The full graded
-          review and scripts live in the
+          production themes and reviewed the top six papers in each. Production
+          grade measures direct usefulness and adaptation cost, not academic
+          quality. The full graded review and scripts live in the
           <a href="https://github.com/genawass/cvpr2026" target="_blank" rel="noreferrer">CVPR 2026 repository</a>.
         </p>
       </div>
