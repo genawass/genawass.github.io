@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">One shared visual model replaces task pipelines</title>
+<desc id="desc">Many sensor inputs flow into a shared correspondence and world model which exposes detection, tracking, segmentation, registration, localization, geometry, motion, and forecasting as outputs.</desc>
+<rect width="1200" height="760" fill="#ffffff"/>
+<text x="50" y="58" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="700" fill="#20242b">The new unit of computer vision is a shared world model</text>
+<text x="50" y="90" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#6a7079">Tasks become queries over persistent identity, geometry, semantics, and motion.</text>
+<rect x="55" y="150" width="190" height="50" rx="9" fill="#ffffff" stroke="#0b5fb0" stroke-width="1.5"/>
+<text x="150.0" y="181.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600" fill="#20242b">RGB</text>
+<line x1="245" y1="175" x2="385" y2="355" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="55" y="232" width="190" height="50" rx="9" fill="#ffffff" stroke="#0b5fb0" stroke-width="1.5"/>
+<text x="150.0" y="263.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600" fill="#20242b">thermal</text>
+<line x1="245" y1="257" x2="385" y2="355" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="55" y="314" width="190" height="50" rx="9" fill="#ffffff" stroke="#0b5fb0" stroke-width="1.5"/>
+<text x="150.0" y="345.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600" fill="#20242b">depth</text>
+<line x1="245" y1="339" x2="385" y2="355" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="55" y="396" width="190" height="50" rx="9" fill="#ffffff" stroke="#0b5fb0" stroke-width="1.5"/>
+<text x="150.0" y="427.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600" fill="#20242b">event</text>
+<line x1="245" y1="421" x2="385" y2="355" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="55" y="478" width="190" height="50" rx="9" fill="#ffffff" stroke="#0b5fb0" stroke-width="1.5"/>
+<text x="150.0" y="509.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600" fill="#20242b">radar / IMU</text>
+<line x1="245" y1="503" x2="385" y2="355" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="55" y="560" width="190" height="50" rx="9" fill="#ffffff" stroke="#0b5fb0" stroke-width="1.5"/>
+<text x="150.0" y="591.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600" fill="#20242b">language</text>
+<line x1="245" y1="585" x2="385" y2="355" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="385" y="210" width="430" height="300" rx="24" fill="#f3effb" stroke="#6b46c1" stroke-width="3"/>
+<text x="600" y="265" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#6b46c1">shared correspondence</text>
+<text x="600" y="300" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#6b46c1">+ persistent world model</text>
+<rect x="455" y="345" width="290" height="48" rx="9" fill="#ffffff" stroke="#6b46c1" stroke-width="1.5"/>
+<text x="600.0" y="375.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#20242b">identity · geometry · semantics</text>
+<rect x="455" y="415" width="290" height="48" rx="9" fill="#ffffff" stroke="#6b46c1" stroke-width="1.5"/>
+<text x="600.0" y="445.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#20242b">motion · memory · uncertainty</text>
+<text x="600" y="555" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#6a7079">language · examples · queries · tools</text>
+<line x1="815" y1="355" x2="870" y2="200" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="870" y="175" width="125" height="50" rx="9" fill="#ffffff" stroke="#2f855a" stroke-width="1.5"/>
+<text x="932.5" y="206.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#20242b">detect</text>
+<line x1="815" y1="355" x2="1020" y2="200" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="1020" y="175" width="125" height="50" rx="9" fill="#ffffff" stroke="#2f855a" stroke-width="1.5"/>
+<text x="1082.5" y="206.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#20242b">segment</text>
+<line x1="815" y1="355" x2="870" y2="310" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="870" y="285" width="125" height="50" rx="9" fill="#ffffff" stroke="#2f855a" stroke-width="1.5"/>
+<text x="932.5" y="316.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#20242b">track</text>
+<line x1="815" y1="355" x2="1020" y2="310" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="1020" y="285" width="125" height="50" rx="9" fill="#ffffff" stroke="#2f855a" stroke-width="1.5"/>
+<text x="1082.5" y="316.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#20242b">register</text>
+<line x1="815" y1="355" x2="870" y2="420" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="870" y="395" width="125" height="50" rx="9" fill="#ffffff" stroke="#2f855a" stroke-width="1.5"/>
+<text x="932.5" y="426.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#20242b">localize</text>
+<line x1="815" y1="355" x2="1020" y2="420" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="1020" y="395" width="125" height="50" rx="9" fill="#ffffff" stroke="#2f855a" stroke-width="1.5"/>
+<text x="1082.5" y="426.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#20242b">reconstruct</text>
+<line x1="815" y1="355" x2="870" y2="530" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="870" y="505" width="125" height="50" rx="9" fill="#ffffff" stroke="#2f855a" stroke-width="1.5"/>
+<text x="932.5" y="536.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#20242b">reason</text>
+<line x1="815" y1="355" x2="1020" y2="530" stroke="#e7e7e4" stroke-width="2"/>
+<rect x="1020" y="505" width="125" height="50" rx="9" fill="#ffffff" stroke="#2f855a" stroke-width="1.5"/>
+<text x="1082.5" y="536.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#20242b">forecast</text>
+<text x="150" y="690" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#0b5fb0">different observations</text>
+<text x="600" y="690" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#6b46c1">one learned state</text>
+<text x="1015" y="690" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#2f855a">many capabilities</text>
+</svg>
