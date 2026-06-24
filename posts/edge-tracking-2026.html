@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNJHN77SZF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-HNJHN77SZF");
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Future of Edge Tracking: 2026 SOTA Single Object Tracking Review — Genadiy Vasserman</title>
+    <meta
+      name="description"
+      content="A deployment-oriented review of 2026 single object tracking: which tracker gives the best accuracy–latency–stability trade-off under a fixed edge budget."
+    />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="The Future of Edge Tracking: 2026 SOTA Single Object Tracking Review" />
+    <meta
+      property="og:description"
+      content="Accuracy-first RGB SOT, edge-first bbox SOT, and mask-based Track-Anything — compared on real Jetson-class runtime, not just LaSOT scores."
+    />
+    <meta property="og:url" content="https://genawass.github.io/posts/edge-tracking-2026.html" />
+    <meta property="og:site_name" content="Genadiy Vasserman" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="The Future of Edge Tracking: 2026 SOTA Single Object Tracking Review" />
+    <meta
+      name="twitter:description"
+      content="Which 2026 tracker wins the accuracy–latency–stability trade-off under a fixed edge budget."
+    />
+
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .lede { font-size: 1.12rem; color: var(--text); }
+      .thesis {
+        margin: 28px 0;
+        padding: 18px 20px;
+        border: 1px solid #d8ccef;
+        border-radius: 8px;
+        background: #f3effb;
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+      .thesis strong { color: var(--text); }
+      .post-body h3 {
+        margin: 30px 0 6px;
+        font-family: "Charter", "Georgia", serif;
+        font-size: 1.16rem;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        color: var(--text);
+      }
+      .post-body h4 {
+        margin: 22px 0 6px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+      }
+      .bestfit {
+        margin: 6px 0 14px;
+        padding: 10px 14px;
+        border-left: 3px solid #b9a8df;
+        background: #f7f4fc;
+        font-size: 0.96rem;
+      }
+      .post-body ul { margin: 0 0 18px; padding-left: 1.3rem; }
+      .post-body li { margin-bottom: 8px; }
+      .table-wrap { margin: 18px 0 24px; overflow-x: auto; }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.84rem;
+      }
+      th, td {
+        border: 1px solid var(--rule);
+        padding: 7px 11px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th { background: #f6f6f3; font-weight: 600; }
+      td.num, th.num { text-align: right; }
+      .resource {
+        margin: 6px 0 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.86rem;
+        color: var(--muted);
+      }
+      hr.sep { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
+      .note {
+        margin-top: 44px;
+        padding-top: 18px;
+        border-top: 1px solid var(--rule);
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <article class="post">
+      <p class="backlink">
+        <a href="../index.html">← Genadiy Vasserman</a>
+        &nbsp;·&nbsp;
+        <a href="../blog.html">Blog</a>
+      </p>
+
+      <header class="post-head">
+        <h1>The Future of Edge Tracking: 2026 SOTA Single Object Tracking Review</h1>
+        <time datetime="2026-06">June 2026</time>
+      </header>
+
+      <div class="post-body">
+        <p class="lede">
+          Single object tracking is moving from research benchmarks into real edge
+          deployments: robotics, long-range surveillance, industrial inspection,
+          UAV payloads, and camera-side analytics. For production, the key question
+          is no longer only &ldquo;which tracker has the highest LaSOT score?&rdquo; but:
+          <strong>which tracker gives the best accuracy&ndash;latency&ndash;stability
+          trade-off under a fixed edge budget?</strong>
+        </p>
+
+        <p>
+          This is a focused companion to my broader passes over the conference —
+          <a href="cvpr2026.html">The Map of CVPR 2026</a>, which charts all 5,010
+          accepted papers, and
+          <a href="cvpr2026-production.html">What CVPR 2026 Says About Production
+          Computer Vision</a>, where tracking was one of 14 production themes. Here
+          I zoom all the way into a single question that the production review only
+          touched: how do the strongest 2026 trackers actually behave under an edge
+          budget?
+        </p>
+
+        <p>This review separates modern SOT methods into three practical groups:</p>
+        <ul>
+          <li><strong>Accuracy-first RGB SOT</strong> — best benchmark numbers, usually heavier.</li>
+          <li><strong>Edge-first bbox SOT</strong> — real-time deployment on Jetson/CPU-class hardware.</li>
+          <li><strong>Mask-based tracking / Track-Anything</strong> — when the output must be a segmentation mask rather than a bounding box.</li>
+        </ul>
+
+        <p>
+          A major engineering trend is clear: the best deployable trackers avoid
+          unbounded memory growth. They use fixed-size templates, compact temporal
+          tokens, token pooling, or short controlled history. This makes them easier
+          to export, profile, batch, quantize, and run under predictable latency
+          constraints.
+        </p>
+
+        <div class="thesis">
+          <strong>The practical conclusion:</strong> the headline is not that
+          memory-heavy foundation models replace classical trackers. The stronger
+          direction for the edge is <strong>fixed-shape transformer tracking with
+          compact temporal modeling</strong>.
+        </div>
+
+        <h2>SOT vs Track-Anything</h2>
+        <p>
+          Bounding-box SOT and SAM-style video object segmentation are related but
+          not identical.
+        </p>
+        <p>
+          <strong>Classic SOT</strong> starts with an initial box and predicts a box
+          in every frame. Evaluation is usually on LaSOT, GOT-10k, TrackingNet,
+          UAV123, VOT, etc.
+        </p>
+        <p>
+          <strong>Track-Anything / VOS</strong> starts from a mask, point, or box
+          prompt and propagates segmentation masks. Evaluation is usually on DAVIS,
+          MOSE, SA-V, LVOS, and VOS benchmarks.
+        </p>
+        <p>
+          For edge deployment, this distinction matters. A bbox tracker can run very
+          fast and integrate easily with a detector. A mask tracker gives better
+          object shape and occlusion handling, but it is usually heavier and harder
+          to compile into a fully static inference graph.
+        </p>
+
+        <h2>Top SOTA methods for 2026 edge-oriented tracking</h2>
+
+        <h3>1. DTPTrack — accuracy-first drift-resilient RGB SOT</h3>
+        <p class="bestfit"><strong>Best fit:</strong> highest-accuracy RGB tracking when GPU budget is available.</p>
+        <p>
+          DTPTrack introduces a lightweight temporal-prior module that can be plugged
+          into existing trackers such as OSTrack, ODTrack, and LoRAT. Its main goal
+          is to reduce model drift caused by noisy historical predictions.
+        </p>
+        <h4>Key innovation</h4>
+        <p>DTPTrack uses two temporal components:</p>
+        <ul>
+          <li><strong>Temporal Reliability Calibrator</strong> — estimates how reliable previous tracking states are.</li>
+          <li><strong>Temporal Guidance Synthesizer</strong> — compresses reliable history into temporal priors that guide the tracker.</li>
+        </ul>
+        <p>Instead of blindly trusting all previous frames, DTPTrack learns which historical information is safe to reuse.</p>
+        <h4>Why it matters</h4>
+        <p>
+          This is highly relevant for long-term tracking where the target is
+          partially occluded, temporarily lost, or surrounded by visually similar
+          distractors. In these cases, naive template updates often corrupt the
+          tracker.
+        </p>
+        <h4>Reported benchmark position</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Benchmark</th><th class="num">Reported result</th></tr></thead>
+            <tbody>
+              <tr><td>LaSOT AUC</td><td class="num">77.5</td></tr>
+              <tr><td>GOT-10k AO</td><td class="num">80.3</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>Edge deployment view</h4>
+        <p>
+          DTPTrack is a strong SOTA reference, but it should not be presented as the
+          most edge-native solution unless it is benchmarked on the target device. It
+          is better positioned as the <strong>accuracy ceiling</strong> for RGB SOT.
+        </p>
+        <p class="resource">Paper / Code: <a href="https://github.com/NorahGreen/DTPTrack" target="_blank" rel="noreferrer">github.com/NorahGreen/DTPTrack</a></p>
+
+        <hr class="sep" />
+
+        <h3>2. TGTrack — temporal generative tracking</h3>
+        <p class="bestfit"><strong>Best fit:</strong> robust temporal tracking across RGB and multi-modal scenarios.</p>
+        <p>
+          TGTrack is a CVPR 2026 tracker built around temporal generative learning.
+          Instead of treating temporal information as only template updates or
+          propagated tokens, TGTrack trains the model to learn temporal dynamics
+          directly.
+        </p>
+        <h4>Key innovation</h4>
+        <p>TGTrack adds a <strong>transformer-based generative decoder</strong> with:</p>
+        <ul>
+          <li>gated temporal fusion,</li>
+          <li>autoregressive prediction,</li>
+          <li>time-token embedding,</li>
+          <li>temporal generative supervision.</li>
+        </ul>
+        <p>The model learns to reason about how the target changes over time, not only how it looks in the current search region.</p>
+        <h4>Why it matters</h4>
+        <p>This is valuable in difficult long-term videos with deformation, occlusion, similar distractors, low resolution, or fast appearance change.</p>
+        <h4>Reported benchmark position</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Model</th><th class="num">LaSOT AUC</th><th class="num">GOT-10k AO</th></tr></thead>
+            <tbody>
+              <tr><td>TGTrack-L384</td><td class="num">76.4</td><td class="num">81.8</td></tr>
+              <tr><td>TGTrack-B384</td><td class="num">75.3</td><td class="num">79.8</td></tr>
+              <tr><td>TGTrack-B256</td><td class="num">74.6</td><td class="num">80.8</td></tr>
+              <tr><td>TGTrack-S224</td><td class="num">72.9</td><td class="num">77.2</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>Edge deployment view</h4>
+        <p>
+          TGTrack is stronger as an accuracy/robustness SOTA method than as an edge
+          baseline. For real deployment, use it as a reference model or teacher, then
+          compare against UETrack, FARTrack, MixFormerV2-S, or another lighter
+          tracker on the target Jetson.
+        </p>
+        <p class="resource">
+          Paper: <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Geng_TGTrack_Temporal_Generative_Learning_for_Unified_Single_Object_Tracking_CVPR_2026_paper.html" target="_blank" rel="noreferrer">CVF Open Access</a>
+          &nbsp;·&nbsp;
+          Code: <a href="https://github.com/wtg1/TGTrack" target="_blank" rel="noreferrer">github.com/wtg1/TGTrack</a>
+        </p>
+
+        <hr class="sep" />
+
+        <h3>3. UETrack — best practical edge SOT candidate</h3>
+        <p class="bestfit"><strong>Best fit:</strong> real-time single object tracking on edge devices, including RGB, RGB-D, RGB-T, event, and language-guided variants.</p>
+        <p>
+          UETrack is one of the most practical 2026 trackers for edge deployment
+          because it explicitly reports speed on GPU, CPU, and Jetson AGX Xavier.
+        </p>
+        <h4>Key innovation</h4>
+        <ul>
+          <li><strong>Token-Pooling Mixture-of-Experts</strong> — improves representation without expensive dynamic routing.</li>
+          <li><strong>Target-aware Adaptive Distillation</strong> — selectively distills from a teacher only when the teacher signal is reliable.</li>
+          <li><strong>Unified RGB-X design</strong> — same framework can handle RGB, depth, thermal, event, and language inputs.</li>
+        </ul>
+        <h4>Why it matters</h4>
+        <p>
+          Most high-accuracy trackers are too slow or too complex for embedded
+          deployment. UETrack directly targets the speed–accuracy trade-off and
+          provides real hardware measurements.
+        </p>
+        <h4>Reported RGB tracking results</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Model</th><th class="num">LaSOT AUC</th><th class="num">GOT-10k AO</th><th class="num">Jetson AGX Xavier FPS</th></tr></thead>
+            <tbody>
+              <tr><td>UETrack-B</td><td class="num">69.2</td><td class="num">72.6</td><td class="num">60</td></tr>
+              <tr><td>UETrack-S</td><td class="num">66.9</td><td class="num">71.1</td><td class="num">67</td></tr>
+              <tr><td>UETrack-T</td><td class="num">63.4</td><td class="num">65.3</td><td class="num">77</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>Edge deployment view</h4>
+        <p>
+          This is the strongest candidate for a production edge tracker when the
+          requirement is real-time bbox tracking. For most embedded systems, I would
+          start with <strong>UETrack-B</strong> if accuracy matters and
+          <strong>UETrack-T</strong> if latency is the main constraint.
+        </p>
+        <p class="resource">
+          Paper: <a href="https://arxiv.org/abs/2603.01412" target="_blank" rel="noreferrer">arXiv:2603.01412</a>
+          &nbsp;·&nbsp;
+          Code: <a href="https://github.com/kangben258/UETrack" target="_blank" rel="noreferrer">github.com/kangben258/UETrack</a>
+        </p>
+
+        <hr class="sep" />
+
+        <h3>4. FARTrack — ultra-fast autoregressive tracking</h3>
+        <p class="bestfit"><strong>Best fit:</strong> very high-FPS tracking when CPU/GPU efficiency is more important than absolute SOTA accuracy.</p>
+        <p>FARTrack is designed around fast autoregressive tracking. Its strongest practical advantage is speed.</p>
+        <h4>Key innovation</h4>
+        <p>FARTrack uses a compact autoregressive design that reduces per-frame overhead and targets high-throughput inference.</p>
+        <h4>Why it matters</h4>
+        <p>
+          For edge systems with many streams, the best tracker is often not the
+          highest-accuracy tracker. It is the tracker that stays stable at the
+          required FPS without starving the detector, video decoder, or
+          post-processing pipeline.
+        </p>
+        <h4>Reported runtime position</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Model</th><th class="num">GOT-10k AO</th><th class="num">GPU FPS</th><th class="num">CPU FPS</th></tr></thead>
+            <tbody>
+              <tr><td>FARTrack-pico</td><td class="num">70.6</td><td class="num">343</td><td class="num">121</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>Edge deployment view</h4>
+        <p>
+          FARTrack is interesting for multi-camera or low-power use cases. It should
+          be benchmarked against UETrack-T and MixFormerV2-S on the same Jetson
+          target.
+        </p>
+        <p class="resource">Paper / Code: <a href="https://github.com/MIV-XJTU/FARTrack" target="_blank" rel="noreferrer">github.com/MIV-XJTU/FARTrack</a></p>
+
+        <hr class="sep" />
+
+        <h3>5. EdgeTAM — edge Track-Anything for mask tracking</h3>
+        <p class="bestfit"><strong>Best fit:</strong> when the output must be a segmentation mask, not just a bounding box.</p>
+        <p>
+          EdgeTAM is not a classic bbox SOT tracker. It is an on-device
+          Track-Anything model derived from SAM 2-style video segmentation. It is
+          useful when the system needs object masks for manipulation, AR, video
+          editing, shape-aware tracking, or downstream segmentation.
+        </p>
+        <h4>Key innovation</h4>
+        <p>
+          EdgeTAM makes SAM 2-style video tracking deployable by attacking the actual
+          bottleneck: not only the image encoder, but also the
+          <strong>memory attention blocks</strong>. It uses a
+          <strong>2D Spatial Perceiver</strong> to compress dense video memory into
+          efficient spatial tokens.
+        </p>
+        <h4>Why it matters</h4>
+        <p>
+          SAM 2 is powerful, but too heavy for many edge devices. EdgeTAM keeps the
+          promptable segmentation workflow while reducing runtime enough for
+          mobile/on-device use.
+        </p>
+        <h4>Reported mask-tracking results</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Benchmark</th><th>Metric</th><th class="num">Result</th></tr></thead>
+            <tbody>
+              <tr><td>DAVIS 2017</td><td>J&amp;F</td><td class="num">87.7</td></tr>
+              <tr><td>MOSE</td><td>J&amp;F</td><td class="num">70.0</td></tr>
+              <tr><td>SA-V val</td><td>J&amp;F</td><td class="num">72.3</td></tr>
+              <tr><td>SA-V test</td><td>J&amp;F</td><td class="num">71.7</td></tr>
+              <tr><td>iPhone 15 Pro Max</td><td>FPS</td><td class="num">16</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>Edge deployment view</h4>
+        <p>
+          Use EdgeTAM when masks are required. Do not compare its DAVIS/MOSE/SA-V
+          numbers directly with LaSOT/GOT bbox trackers. It solves a different output
+          problem.
+        </p>
+        <p class="resource">
+          Paper: <a href="https://arxiv.org/abs/2501.07256" target="_blank" rel="noreferrer">arXiv:2501.07256</a>
+          &nbsp;·&nbsp;
+          Code: <a href="https://github.com/facebookresearch/EdgeTAM" target="_blank" rel="noreferrer">github.com/facebookresearch/EdgeTAM</a>
+        </p>
+
+        <h2>Important baselines: STARK, OSTrack, MixFormerV2</h2>
+        <p>Older trackers are still useful because they are clean, well-known, and easier to reproduce.</p>
+        <h3>STARK</h3>
+        <p>
+          STARK is a classic transformer tracker with a clean encoder-decoder style
+          design. It is deterministic and simple compared with modern temporal-memory
+          methods, but it is no longer 2026 SOTA.
+        </p>
+        <p class="resource">Resource: <a href="https://github.com/researchmm/Stark" target="_blank" rel="noreferrer">github.com/researchmm/Stark</a></p>
+        <h3>OSTrack</h3>
+        <p>
+          OSTrack remains one of the strongest one-stream baselines. It is simple and
+          accurate, but not always edge-real-time on Jetson-class hardware.
+        </p>
+        <p class="resource">Resource: <a href="https://github.com/botaoye/OSTrack" target="_blank" rel="noreferrer">github.com/botaoye/OSTrack</a></p>
+        <h3>MixFormerV2</h3>
+        <p>
+          MixFormerV2 is still useful as an efficient transformer baseline. The small
+          model has a good edge-speed profile, although its accuracy is lower than
+          newer SOTA trackers.
+        </p>
+        <p class="resource">Resource: <a href="https://github.com/MCG-NJU/MixFormer" target="_blank" rel="noreferrer">github.com/MCG-NJU/MixFormer</a></p>
+
+        <h2>SOTA and edge runtime table</h2>
+        <p>
+          The table below separates <strong>officially reported edge/device
+          runtime</strong> from pure benchmark accuracy. Do not treat all rows as
+          directly comparable because bbox SOT and mask tracking use different
+          datasets and metrics.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Method</th><th>Output</th><th>Main strength</th>
+                <th class="num">LaSOT AUC</th><th class="num">GOT-10k AO</th>
+                <th>Reported edge / runtime</th><th>Edge verdict</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>DTPTrack / LoRATv2</td><td>Box</td><td>Best RGB drift-resilient SOT accuracy</td><td class="num">77.5</td><td class="num">80.3</td><td>No official Jetson result found</td><td>Accuracy reference, not first edge pick</td></tr>
+              <tr><td>TGTrack-L384</td><td>Box</td><td>Temporal generative SOTA</td><td class="num">76.4</td><td class="num">81.8</td><td>No official Jetson result found</td><td>Strong SOTA, likely heavier</td></tr>
+              <tr><td>TGTrack-B384</td><td>Box</td><td>Balanced high-accuracy model</td><td class="num">75.3</td><td class="num">79.8</td><td>No official Jetson result found</td><td>Good teacher/reference model</td></tr>
+              <tr><td>UETrack-B</td><td>Box</td><td>Best practical edge-accuracy balance</td><td class="num">69.2</td><td class="num">72.6</td><td>60 FPS on Jetson AGX Xavier</td><td>Best edge-first candidate</td></tr>
+              <tr><td>UETrack-S</td><td>Box</td><td>Faster edge model</td><td class="num">66.9</td><td class="num">71.1</td><td>67 FPS on Jetson AGX Xavier</td><td>Strong speed/accuracy trade-off</td></tr>
+              <tr><td>UETrack-T</td><td>Box</td><td>Fastest UETrack variant</td><td class="num">63.4</td><td class="num">65.3</td><td>77 FPS on Jetson AGX Xavier</td><td>Best low-latency UETrack</td></tr>
+              <tr><td>FARTrack-pico</td><td>Box</td><td>Extreme speed</td><td class="num">—</td><td class="num">70.6</td><td>343 FPS GPU / 121 FPS CPU</td><td>Very interesting for multi-stream tracking</td></tr>
+              <tr><td>MixFormerV2-S</td><td>Box</td><td>Efficient older transformer baseline</td><td class="num">60.6</td><td class="num">61.9</td><td>70 FPS on Jetson AGX Xavier</td><td>Good lightweight baseline</td></tr>
+              <tr><td>OSTrack-256</td><td>Box</td><td>Strong simple one-stream baseline</td><td class="num">69.1</td><td class="num">71.0</td><td>19 FPS on Jetson AGX Xavier</td><td>Accurate, but borderline edge real-time</td></tr>
+              <tr><td>STARK-ST50</td><td>Box</td><td>Deterministic classic transformer baseline</td><td class="num">66.6</td><td class="num">68.0</td><td>13 FPS on Jetson AGX Xavier</td><td>Stable baseline, not modern edge SOTA</td></tr>
+              <tr><td>EdgeTAM</td><td>Mask</td><td>On-device Track-Anything segmentation</td><td class="num">N/A</td><td class="num">N/A</td><td>16 FPS on iPhone 15 Pro Max</td><td>Best when masks are required</td></tr>
+              <tr><td>SAM2 + DAM4SAM</td><td>Mask / VOS-style</td><td>Robust distractor-aware memory</td><td class="num">N/A</td><td class="num">N/A</td><td>No edge-first runtime</td><td>Strong server/reference method, not static-edge friendly</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Deployment recommendation</h2>
+        <p>
+          For an edge production system, I would not start with SAM 2 or a large
+          temporal-memory tracker unless masks are mandatory.
+        </p>
+        <h3>Use UETrack-B when</h3>
+        <ul>
+          <li>you need bbox SOT,</li>
+          <li>you want real-time Jetson-class deployment,</li>
+          <li>you need good robustness,</li>
+          <li>you may later support RGB-D, RGB-T, or event input.</li>
+        </ul>
+        <h3>Use UETrack-T when</h3>
+        <ul>
+          <li>latency is more important than top accuracy,</li>
+          <li>the system runs multiple streams,</li>
+          <li>you need predictable throughput.</li>
+        </ul>
+        <h3>Use FARTrack-pico when</h3>
+        <ul>
+          <li>CPU/GPU speed is the priority,</li>
+          <li>the tracker is part of a multi-camera pipeline,</li>
+          <li>some accuracy trade-off is acceptable.</li>
+        </ul>
+        <h3>Use EdgeTAM when</h3>
+        <ul>
+          <li>you need segmentation masks,</li>
+          <li>bbox tracking is not enough,</li>
+          <li>the deployment is mobile or interactive.</li>
+        </ul>
+        <h3>Use DTPTrack or TGTrack when</h3>
+        <ul>
+          <li>you want best accuracy,</li>
+          <li>you can afford heavier compute,</li>
+          <li>you need a research SOTA reference or teacher model.</li>
+        </ul>
+
+        <h2>Engineering notes for TensorRT / edge deployment</h2>
+        <ul>
+          <li><strong>Prefer fixed template/search sizes.</strong> Typical bbox trackers can be exported with fixed template and search tensors, which is much easier to compile and profile.</li>
+          <li><strong>Avoid unbounded memory.</strong> SAM-style memory banks are powerful but harder to make deterministic. Compact temporal tokens or fixed-length history are safer for embedded deployment.</li>
+          <li><strong>Benchmark on the target hardware.</strong> Jetson AGX Xavier, Orin NX, AGX Orin, RTX desktop GPUs, and mobile NPUs behave very differently. Do not convert paper FPS directly into production FPS.</li>
+          <li><strong>Separate detector and tracker budgets.</strong> In a real system, the tracker is not alone. Video decode, detector refresh, resize/crop, preprocessing, NMS, post-processing, and inter-process transfer may dominate latency.</li>
+          <li><strong>Use confidence gating.</strong> When the target is occluded, do not blindly update the template. Freeze or slow updates until the tracker confidence recovers.</li>
+        </ul>
+
+        <h2>Final verdict</h2>
+        <p>
+          For a 2026 edge-oriented SOT blog post, the headline should not be that
+          memory-heavy foundation models replace classical trackers. The stronger
+          conclusion is that the practical edge SOT direction is fixed-shape
+          transformer tracking with compact temporal modeling.
+        </p>
+        <p>
+          For bbox tracking, <strong>UETrack</strong> is currently the most
+          convincing edge-first candidate because it reports real FPS on Jetson-class
+          hardware. For maximum accuracy, <strong>DTPTrack</strong> and
+          <strong>TGTrack</strong> are better SOTA references. For mask tracking,
+          <strong>EdgeTAM</strong> is the correct edge alternative to SAM 2-style
+          tracking.
+        </p>
+
+        <p class="note">
+          <strong>Where this fits.</strong> This post drills into one theme from my
+          wider production review,
+          <a href="cvpr2026-production.html">What CVPR 2026 Says About Production
+          Computer Vision</a> — see also the same review's take on video benchmarks
+          that deliberately break smooth-motion assumptions. For the conference-wide
+          map, start with <a href="cvpr2026.html">The Map of CVPR 2026</a>. Reported
+          numbers are taken from each method's paper or repository and are not
+          re-measured here; always benchmark on your own target hardware before
+          committing.
+        </p>
+      </div>
+    </article>
+  </body>
+</html>
