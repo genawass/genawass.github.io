@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNJHN77SZF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-HNJHN77SZF");
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>When the Detector Disagrees With the Label — Genadiy Vasserman</title>
+    <meta
+      name="description"
+      content="A deep dive on Axis A (label integrity): flip TIDE error types from a model scorecard into a ranked label-audit queue. Disagreement is a suspicion, never proof."
+    />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="When the Detector Disagrees With the Label" />
+    <meta
+      property="og:description"
+      content="TIDE was built to diagnose the model. Flip it, and the same error types become a ranked list of annotation suspects — a label-audit queue, not an automatic dataset mutation."
+    />
+    <meta property="og:url" content="https://genawass.github.io/posts/label-integrity-tide.html" />
+    <meta property="og:site_name" content="Genadiy Vasserman" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="When the Detector Disagrees With the Label" />
+    <meta
+      name="twitter:description"
+      content="Axis A in practice: TIDE error types as a ranked label-audit queue. A disagreement is a suspicion, never proof."
+    />
+
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .lede { font-size: 1.12rem; color: var(--text); }
+      .thesis, .callout {
+        margin: 28px 0;
+        padding: 18px 20px;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      }
+      .thesis {
+        background: #f3effb;
+        border-color: #d8ccef;
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+      .callout {
+        background: #fafafa;
+        line-height: 1.75;
+        font-size: 0.95rem;
+      }
+      .callout strong, .thesis strong { color: var(--text); }
+      .comparison {
+        width: 100%;
+        margin: 28px 0 34px;
+        border-collapse: collapse;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.84rem;
+      }
+      .comparison th, .comparison td {
+        padding: 11px 10px;
+        border-bottom: 1px solid var(--rule);
+        text-align: left;
+        vertical-align: top;
+      }
+      .comparison th { color: var(--muted); font-weight: 500; }
+      .comparison code {
+        font-size: 0.82rem;
+        background: #f3effb;
+        padding: 1px 5px;
+        border-radius: 4px;
+      }
+      .post-body ul { margin: 0 0 18px; padding-left: 1.3rem; }
+      .post-body li { margin-bottom: 8px; }
+      .note {
+        margin-top: 44px;
+        padding-top: 18px;
+        border-top: 1px solid var(--rule);
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <article class="post">
+      <p class="backlink">
+        <a href="../index.html">← Genadiy Vasserman</a>
+        &nbsp;·&nbsp;
+        <a href="../blog.html">Blog</a>
+      </p>
+
+      <header class="post-head">
+        <h1>When the Detector Disagrees With the Label</h1>
+        <time datetime="2026-06">June 2026</time>
+      </header>
+
+      <div class="post-body">
+        <p class="lede">
+          Every false positive is two hypotheses at once: the model is wrong, or
+          the label is wrong. Detection evaluation assumes the first. Dataset
+          improvement has to consider the second.
+        </p>
+
+        <p>
+          This is a deep dive on <strong>Axis A — label integrity</strong> from
+          <a href="active-learning-axes.html">Active Learning Needs Orthogonal Axes</a>.
+          That post argued each kind of intervention deserves its own evidence and
+          its own queue. Axis A is the one that never asks for new data. Its
+          candidate universe is the <strong>labeled pool only</strong>; its job is
+          to find annotations that may be wrong or incomplete and route them to a
+          reviewer. The question it answers is narrow: <em>is an existing
+          annotation wrong or incomplete?</em>
+        </p>
+
+        <div class="thesis">
+          <strong>The idea:</strong> <a href="https://arxiv.org/abs/2008.08115" target="_blank" rel="noreferrer">TIDE</a>
+          was built to diagnose the <em>model</em> — to break mAP into
+          interpretable error types. Flip the assumption — trust the model, doubt
+          the label — and the same error types become a ranked list of
+          <strong>annotation suspects</strong>. A detector disagreement is a
+          suspicion, never proof. The output is a label-audit queue, never an
+          automatic mutation of the dataset.
+        </div>
+
+        <h2>TIDE in one paragraph</h2>
+        <p>
+          TIDE matches each prediction to ground truth by IoU and assigns it an
+          error type. Two thresholds do the work: a foreground threshold
+          (<code>IoU ≥ 0.5</code>, a real match) and a background threshold
+          (<code>IoU &lt; 0.1</code>, a match to nothing). Between them sit the
+          interesting cases — right class but loose box, right box but wrong class,
+          a second box on an object already found. In a normal evaluation each of
+          these is charged against the model. Here, every one of them is also a
+          place where the <em>annotation</em> could be the thing that is wrong.
+        </p>
+
+        <h2>The flip</h2>
+        <p>
+          The same signal reads two ways depending on which side you trust:
+        </p>
+
+        <div class="callout">
+          <strong>Model-eval lens:</strong> a high-confidence box on background
+          (<code>fp_bg</code>) is a hallucination — penalize precision.<br />
+          <strong>Dataset lens:</strong> the same box may be a real object that
+          <em>nobody annotated</em> — a missing-label suspect.
+        </div>
+
+        <p>
+          Axis A runs the dataset lens. It does not decide which hypothesis is
+          true; it surfaces the disagreement, attaches the evidence, and lets a
+          human adjudicate. What changes versus model evaluation is only the
+          default suspicion.
+        </p>
+
+        <h2>The labeling errors it catches</h2>
+        <p>
+          Each subtype is triggered by a TIDE error type from
+          <code>classify_errors</code>, where a model prediction disagrees with the
+          ground truth:
+        </p>
+
+        <table class="comparison">
+          <thead>
+            <tr>
+              <th>Subtype</th>
+              <th>TIDE trigger</th>
+              <th>What it means</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Missing label</strong></td>
+              <td><code>fp_bg</code> — high-confidence box, IoU ≈ 0 with any GT</td>
+              <td>Model found a real object nobody annotated (or a hallucination)</td>
+            </tr>
+            <tr>
+              <td><strong>Wrong class</strong></td>
+              <td><code>fp_cls</code> — high-IoU box, high confidence, different class</td>
+              <td>Box is right, label is wrong (class confusion)</td>
+            </tr>
+            <tr>
+              <td><strong>Inaccurate box</strong></td>
+              <td><code>fp_loc</code> — right class, marginal IoU (loose / tight / shifted)</td>
+              <td>Object is labeled but the box geometry is off</td>
+            </tr>
+            <tr>
+              <td><strong>Duplicate annotation</strong></td>
+              <td><code>fp_dup</code> — two boxes for one object</td>
+              <td>Redundant / overlapping GT</td>
+            </tr>
+            <tr>
+              <td><strong>Invalid / ambiguous</strong></td>
+              <td>mixed signals, low agreement</td>
+              <td>Annotation can't be trusted, or the class is genuinely unclear</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>What does <em>not</em> go to Axis A</h2>
+        <p>
+          The recall-side TIDE types are not label-integrity evidence. A genuine
+          miss (<code>fn_miss</code>) and a below-threshold miss
+          (<code>fn_thr</code>) are <strong>model</strong> failures, not annotation
+          failures — the label is presumably fine; the detector did not find it or
+          found it too weakly. Those route elsewhere:
+        </p>
+        <ul>
+          <li><code>fn_miss</code> on a thinly covered slice → <strong>Axis B</strong> (coverage scarcity);</li>
+          <li><code>fn_thr</code>, or misses near a confusable boundary → <strong>Axis C</strong> (decision-boundary information);</li>
+          <li>misses despite dense coverage → <strong>Axis E</strong> (model / pipeline limitation — resolution, tiling, threshold, NMS).</li>
+        </ul>
+        <p>
+          Keeping these off Axis A is the whole point of separating the axes: a
+          recall failure should never quietly become a request to re-annotate data
+          that was annotated correctly.
+        </p>
+
+        <h2>From error type to audit queue</h2>
+        <p>
+          A raw list of TIDE disagreements is not yet a queue. Three things turn it
+          into one:
+        </p>
+        <ul>
+          <li>
+            <strong>Rank by how surprising the disagreement is</strong> — a
+            very-high-confidence <code>fp_bg</code> on a clean, well-covered slice
+            is a far stronger missing-label suspect than a borderline one near the
+            background threshold.
+          </li>
+          <li>
+            <strong>Attach the evidence, not just the verdict</strong> — the
+            prediction, its confidence, the IoU to the nearest GT, the conflicting
+            classes, and the crop. A reviewer should decide in seconds, not
+            re-investigate from scratch.
+          </li>
+          <li>
+            <strong>Group by subtype</strong> — missing-label review, class
+            correction, and box tightening are different reviewer tasks with
+            different speeds and different acceptance rates. Mixing them slows all
+            three.
+          </li>
+        </ul>
+
+        <h2>Why it stays a suspicion</h2>
+        <p>
+          The discipline that makes Axis A safe is refusing to act on the model's
+          word alone. A detector can be wrong; a label can be wrong; sometimes both
+          are partially wrong. A vision-language model's description of the crop is
+          not proof either — it is one more evidence source that helps prioritize,
+          not a verdict. So Axis A proposes; a human disposes. Every item should
+          carry its provenance — which trigger fired, what evidence supported it,
+          what the reviewer decided, and whether the correction actually reduced
+          error on the relevant slice afterward.
+        </p>
+
+        <p>
+          Measured the right way, this axis pays for itself: reviewer acceptance
+          rate, corrected annotations per review hour, agreement between reviewers,
+          and the drop in annotation-induced error after correction. None of those
+          require collecting a single new image — which is exactly why label
+          integrity earns its own axis instead of hiding inside a global
+          active-learning score.
+        </p>
+
+        <p class="note">
+          This is a deep dive on one axis of
+          <a href="active-learning-axes.html">Active Learning Needs Orthogonal Axes</a>.
+          The error-type names (<code>fp_bg</code>, <code>fp_cls</code>,
+          <code>fp_loc</code>, <code>fp_dup</code>, <code>fn_miss</code>,
+          <code>fn_thr</code>) follow a TIDE-style classifier; thresholds shown are
+          TIDE's defaults.
+        </p>
+      </div>
+    </article>
+  </body>
+</html>
