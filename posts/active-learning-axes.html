@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNJHN77SZF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-HNJHN77SZF");
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Learning Needs Orthogonal Axes — Genadiy Vasserman</title>
+    <meta
+      name="description"
+      content="A single global active-learning score conflates decisions that should stay separate. Separating the evidence for each intervention into orthogonal axes makes data improvement precise and auditable."
+    />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Active Learning Needs Orthogonal Axes" />
+    <meta
+      property="og:description"
+      content="Not every model failure is a labeling problem. Separate the evidence for label repair, data acquisition, boundary uncertainty, domain shift, and model tuning into orthogonal axes."
+    />
+    <meta property="og:url" content="https://genawass.github.io/posts/active-learning-axes.html" />
+    <meta property="og:site_name" content="Genadiy Vasserman" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Active Learning Needs Orthogonal Axes" />
+    <meta
+      name="twitter:description"
+      content="A single global active-learning score hides which intervention a failure actually needs. Orthogonal axes make the decision explicit."
+    />
+
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .lede { font-size: 1.12rem; color: var(--text); }
+      .thesis, .axis, .callout {
+        margin: 28px 0;
+        padding: 18px 20px;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      }
+      .thesis {
+        background: #f3effb;
+        border-color: #d8ccef;
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+      .axis { background: #fafafa; font-size: 0.92rem; line-height: 1.6; }
+      .axis .q { font-size: 1rem; color: var(--text); }
+      .axis .success { color: var(--muted); font-size: 0.86rem; margin-top: 10px; }
+      .callout {
+        background: #fafafa;
+        text-align: center;
+        line-height: 1.9;
+        font-size: 0.95rem;
+      }
+      .callout strong, .thesis strong, .axis strong { color: var(--text); }
+      .comparison {
+        width: 100%;
+        margin: 28px 0 34px;
+        border-collapse: collapse;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.86rem;
+      }
+      .comparison th, .comparison td {
+        padding: 11px 10px;
+        border-bottom: 1px solid var(--rule);
+        text-align: left;
+        vertical-align: top;
+      }
+      .comparison th { color: var(--muted); font-weight: 500; }
+      .good { color: #2e7d32; font-weight: 600; }
+      .bad { color: #b23b3b; font-weight: 600; }
+      .post-body ul { margin: 0 0 18px; padding-left: 1.3rem; }
+      .post-body li { margin-bottom: 8px; }
+      .note {
+        margin-top: 44px;
+        padding-top: 18px;
+        border-top: 1px solid var(--rule);
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <article class="post">
+      <p class="backlink">
+        <a href="../index.html">← Genadiy Vasserman</a>
+        &nbsp;·&nbsp;
+        <a href="../blog.html">Blog</a>
+      </p>
+
+      <header class="post-head">
+        <h1>Active Learning Needs Orthogonal Axes</h1>
+        <time datetime="2026-06">June 2026</time>
+      </header>
+
+      <div class="post-body">
+        <p class="lede">
+          Most active-learning systems start by asking which samples to label
+          next. The question sounds practical, but it quietly assumes that every
+          model failure is a labeling problem. <strong>It isn't.</strong>
+        </p>
+
+        <p>
+          Some failures indicate bad labels. Some indicate missing coverage. Some
+          reveal decision-boundary uncertainty, or domain shift, or a model,
+          threshold, resolution, or postprocessing limitation. When all of these
+          signals are compressed into one global score, a high score becomes
+          impossible to act on. It might mean &ldquo;review this label,&rdquo;
+          &ldquo;collect more data like this,&rdquo; &ldquo;tune the detector,&rdquo;
+          &ldquo;investigate a new domain,&rdquo; or &ldquo;ignore this irrelevant
+          out-of-distribution sample.&rdquo; These are different actions, with
+          different costs and different success criteria.
+        </p>
+
+        <div class="thesis">
+          <strong>The claim:</strong> a single global active-learning score
+          conflates decisions that should stay separate. Splitting the evidence
+          for each kind of intervention into <strong>orthogonal axes</strong> does
+          not replace active learning — it makes it precise and auditable. The
+          goal is to separate the evidence for different kinds of intervention
+          before deciding how much to spend on each.
+        </div>
+
+        <h2>The problem with one global score</h2>
+        <p>
+          A common active-sampling score blends many useful signals — model
+          uncertainty, similarity to known failures, domain gap, class rarity,
+          slice rarity, duplicate avoidance, expected labeling value. This
+          produces a reasonable ranking, but it conflates decisions that should
+          remain separate.
+        </p>
+
+        <p>
+          A high-confidence unmatched prediction on a labeled image may look like
+          a false positive — but it may be a missing ground-truth label. The right
+          action there is not to collect new data; it is to audit the annotation.
+          A rare target slice with high failure rates is a coverage problem. A
+          well-covered slice that still fails because resolution is too low or NMS
+          is suppressing the right boxes is <em>not</em> a data-acquisition problem
+          at all. And a very novel image that is irrelevant to the product domain
+          only wastes budget if collected. So the core separation is:
+        </p>
+
+        <div class="callout">
+          <strong>axis score</strong> — evidence that a specific intervention is needed<br />
+          <strong>selection policy</strong> — how much budget to assign to each intervention<br />
+          <strong>diversity constraints</strong> — how to avoid redundant selections within an intervention
+        </div>
+
+        <p>These three things should not be collapsed into one number.</p>
+
+        <h2>Three candidate universes</h2>
+        <p>
+          Before defining the axes, separate the universes a candidate can come
+          from. Mixing them is one of the biggest causes of wasted annotation
+          effort.
+        </p>
+
+        <table class="comparison">
+          <thead>
+            <tr><th>Universe</th><th>Possible actions</th><th>It is about</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Labeled pool</strong><br />existing train / val annotations</td>
+              <td>audit labels, correct classes, fix boxes, add missing labels, remove invalid annotations</td>
+              <td>label integrity</td>
+            </tr>
+            <tr>
+              <td><strong>Unlabeled pool</strong><br />images / frames without trusted labels</td>
+              <td>select for annotation, prioritize for review, search for a target slice</td>
+              <td>data acquisition</td>
+            </tr>
+            <tr>
+              <td><strong>Model or run</strong><br />thresholds, NMS, architecture, resolution, tiling, calibration, loss</td>
+              <td>run an experiment, tune postprocessing, change training config, evaluate architecture limits</td>
+              <td>model &amp; pipeline improvement</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Axis A — Label integrity</h2>
+        <div class="axis">
+          <p class="q"><strong>Is an existing annotation wrong or incomplete?</strong> (labeled pool)</p>
+          <p>This axis is not asking whether the model failed. It asks whether the
+          dataset itself contains an annotation problem. Typical signs:</p>
+          <ul>
+            <li>high-confidence prediction with no matching ground truth;</li>
+            <li>high-overlap prediction with a different class than the annotation;</li>
+            <li>systematic localization disagreement;</li>
+            <li>duplicate annotations, or missing labels in dense scenes;</li>
+            <li>disagreement between annotation sources.</li>
+          </ul>
+          <p>Model disagreement is only a suspicion, not proof. A detector can be
+          wrong; a label can be wrong; sometimes both are partially wrong. The
+          output should be a <strong>label-audit queue</strong>, not an automatic
+          mutation of the dataset.</p>
+          <p class="success">Success: reviewer acceptance rate, corrected annotations
+          per review hour, inter-reviewer agreement, reduction in annotation-induced
+          errors after correction.</p>
+        </div>
+
+        <h2>Axis B — Target-coverage scarcity</h2>
+        <div class="axis">
+          <p class="q"><strong>Is an important target-domain slice underrepresented
+          in the labeled training pool?</strong></p>
+          <p>This is not class imbalance. A dataset may hold many examples of a
+          class yet poorly cover the conditions that matter: tiny or distant
+          objects, unusual viewpoints, thermal low-contrast targets, crowded
+          scenes, specific backgrounds, rare sensors, night or haze, high-mounted
+          camera views.</p>
+          <p>A failure becomes a coverage problem only when the failing slice has
+          too few <em>independent</em> examples. Ten thousand adjacent frames from
+          one camera are less useful than a hundred examples from different
+          sessions, locations, or conditions. The axis must distinguish
+          underrepresented-and-failing from well-represented-but-failing, from
+          rare-but-handled-correctly, from irrelevant outliers — only the first is
+          a clean acquisition target.</p>
+          <p class="success">Success: coverage increase on the target slice, and
+          improved performance on frozen target evaluation slices.</p>
+        </div>
+
+        <h2>Axis C — Decision-boundary information</h2>
+        <div class="axis">
+          <p class="q"><strong>Which unlabeled samples would most reduce uncertainty
+          in the decision boundary?</strong></p>
+          <p>The classic active-learning axis — handled carefully. Low confidence
+          does not mean useful: a sample may be empty, corrupt, irrelevant, out of
+          domain, or impossible to label consistently. Useful boundary samples
+          expose distinctions the model can realistically learn: confused
+          look-alike classes, borderline object/background cases, hard negatives,
+          uncertain scale or truncation, samples where checkpoints or ensembles
+          disagree. Separate three situations:</p>
+          <ul>
+            <li><strong>Learnable uncertainty</strong> — more labels can improve the boundary;</li>
+            <li><strong>Aleatoric ambiguity</strong> — the image lacks the information to decide;</li>
+            <li><strong>Ontology ambiguity</strong> — the class definition or guideline is unclear.</li>
+          </ul>
+          <p>Only the first is a clean acquisition target.</p>
+          <p class="success">Success: improved calibration, reduced disagreement,
+          performance gain per annotation.</p>
+        </div>
+
+        <h2>Axis D — Distribution shift and novelty</h2>
+        <div class="axis">
+          <p class="q"><strong>Is the candidate meaningfully different from the
+          labeled pool — and is that difference relevant to the target domain?</strong></p>
+          <p>Novelty by itself is not valuable. A detector for aerial surveillance
+          may find underwater scenes highly novel, but they should not be labeled.
+          This axis combines <strong>novelty + target relevance</strong>. The
+          useful cases are target-relevant shifts: a new camera source, sensor
+          modality, geographic environment, weather or illumination, background
+          type, capture altitude, or operational domain.</p>
+          <p>The action depends on relevance: if relevant, create a new domain
+          slice and collect more; if unknown, investigate product relevance first;
+          if irrelevant, reject it from acquisition.</p>
+          <p class="success">Success: better target-domain coverage, improved
+          performance on newly established slices, accurate rejection of irrelevant
+          out-of-distribution data.</p>
+        </div>
+
+        <h2>Axis E — Model and pipeline limitation</h2>
+        <div class="axis">
+          <p class="q"><strong>Does the evidence suggest that changing labels or
+          acquiring more data is unlikely to solve the problem?</strong></p>
+          <p>This is the routing axis that prevents every detector failure from
+          becoming an annotation request. Some failures are the model or pipeline:
+          threshold too high, poor calibration, NMS suppressing valid detections,
+          duplicate detections, resolution too low for small objects, tiling
+          missing tiny targets, a localization loss that does not match evaluation,
+          an architecture unsuited to the object scale, temporal instability, or a
+          regression from a new model version.</p>
+          <p>If many correct objects are detected at low confidence, suspect
+          calibration or thresholding. If tiny objects are missed despite dense
+          coverage, suspect resolution, tiling, or feature stride. If duplicates
+          dominate, suspect NMS or postprocessing. The output is an
+          <strong>experiment recommendation</strong>, not a collection brief.</p>
+          <p class="success">Success: improvement on frozen slices, no unacceptable
+          regression elsewhere, acceptable cost and latency impact.</p>
+        </div>
+
+        <h2>Why the axes must stay independent</h2>
+        <p>
+          The same observation can activate several axes. A high-confidence
+          unmatched prediction could mean a missing label, a false positive, an
+          ontology ambiguity, a domain-shift issue, or a calibration issue. A
+          failure slice with few similar training examples may be coverage
+          scarcity — but if it is also novel and target-relevant, it activates the
+          novelty axis; if it is well represented yet still failing, it routes to
+          model limitation. This is expected. The axes are not mutually exclusive
+          labels; they are independent questions, each with its own evidence,
+          actions, and success metric.
+        </p>
+
+        <h2>A latent cluster is not an acquisition instruction</h2>
+        <p>
+          &ldquo;Cluster 17 is failing&rdquo; is useful for computation, not for
+          collection. A collection team or dataset owner needs a semantic
+          description that is predictive and collectable — what objects are
+          involved, what visual and capture conditions make the slice different,
+          what failure pattern appears, and how it differs from nearby successful
+          examples.
+        </p>
+
+        <table class="comparison">
+          <thead>
+            <tr><th>&nbsp;</th><th>Slice description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="good">Usable</td>
+              <td>Tiny vehicles at long range on low-contrast thermal backgrounds,
+              mostly from elevated static cameras, with frequent missed detections
+              below the confidence threshold.</td>
+            </tr>
+            <tr>
+              <td class="bad">Not usable</td>
+              <td>Cluster 17 has high failure similarity and low train density.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          The semantic layer does not replace the quantitative axes; it translates
+          their evidence into a human-usable description. &ldquo;Hard images,&rdquo;
+          &ldquo;unusual scenes,&rdquo; or &ldquo;bad examples&rdquo; are not enough.
+        </p>
+
+        <h2>From diagnosis to budget allocation</h2>
+        <p>
+          Once the axes are separated, selection becomes two stages. First, each
+          axis produces its own queue — label-audit, coverage-acquisition,
+          uncertainty-annotation, novelty-investigation, model-experiment — each
+          with its own evidence, eligibility gates, and success metrics. Then a
+          planner allocates budget across them explicitly. For example:
+        </p>
+
+        <table class="comparison">
+          <thead>
+            <tr><th>Queue</th><th>Example budget</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Label audit</td><td>30%</td></tr>
+            <tr><td>Target-coverage acquisition</td><td>30%</td></tr>
+            <tr><td>Decision-boundary annotation</td><td>20%</td></tr>
+            <tr><td>Novelty investigation</td><td>10%</td></tr>
+            <tr><td>Model / pipeline experiments</td><td>10%</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          The exact split depends on product priorities, cost, expected gain, and
+          previous results. The point is that the budget decision is explicit — not
+          hidden inside a global weighted score.
+        </p>
+
+        <h2>Diversity is a constraint, not an axis</h2>
+        <p>
+          Diversity and duplicate avoidance are essential, but they are not
+          active-learning objectives by themselves. They are constraints applied
+          within every selected batch: avoid too many adjacent frames, cap samples
+          per video or session, limit examples from the same camera, suppress near
+          duplicates, prefer independent evidence, balance classes and sources.
+          Diversity makes each queue efficient, but it is not the reason a sample
+          was selected.
+        </p>
+
+        <h2>Human validation stays central</h2>
+        <p>
+          Automated systems can propose; they should not silently rewrite the
+          truth. A detector disagreement is not proof of a label error, and neither
+          is a vision-language model description — both are evidence that helps
+          prioritize review. Every selected sample should carry its provenance:
+          which axis selected it, what evidence supported it, what action was
+          recommended, whether a human accepted or rejected it, and whether the
+          action improved the relevant slice later. Without that, data improvement
+          cannot be audited.
+        </p>
+
+        <h2>The core idea</h2>
+        <div class="callout">
+          Do not ask only: <strong>&ldquo;Which samples should we label?&rdquo;</strong><br />
+          Ask first: <strong>&ldquo;What kind of problem are we trying to solve?&rdquo;</strong>
+        </div>
+
+        <p>
+          A detection failure may need label repair, or new data, or boundary
+          examples, or domain investigation, or model tuning — or no action at all.
+          Orthogonal axes make that decision explicit, turning active learning from
+          a single ranking problem into a structured data-improvement loop: observe
+          the failure, separate possible causes, route to the right intervention,
+          allocate budget explicitly, validate the outcome, and track improvement
+          on frozen slices.
+        </p>
+
+        <p>
+          That is the difference between collecting more data and improving the
+          dataset — and in real-world detection, that difference is most of the
+          work.
+        </p>
+      </div>
+    </article>
+  </body>
+</html>
