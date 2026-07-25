@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+<title id="title">The three stages of INT8 deployment</title>
+<desc id="desc">PTQ finds the tensor ranges, QAT moves the weights into those ranges, and QDQ translation hands the ranges to TensorRT. Each stage has its own failure mode.</desc>
+<rect width="1200" height="700" fill="#ffffff"/>
+
+<text x="40" y="50" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="700" fill="#20242b">Quantization is three problems, not one</text>
+<text x="40" y="80" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#6a7079">Each stage answers a different question, and each fails in its own way.</text>
+
+<!-- input pill -->
+<rect x="40" y="104" width="350" height="42" rx="8" fill="#f5f5f2" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="215" y="131" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600" fill="#20242b">FP32 checkpoint</text>
+<path d="M215 146 L215 166" stroke="#6a7079" stroke-width="1.5"/>
+<path d="M215 172 l-5 -8 l10 0 z" fill="#6a7079"/>
+
+<!-- card 1 -->
+<rect x="40" y="174" width="350" height="400" rx="14" fill="#fafafa" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="64" y="214" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#0b5fb0">PTQ</text>
+<text x="64" y="240" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#6a7079">Where are the ranges?</text>
+<line x1="64" y1="260" x2="366" y2="260" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="64" y="296" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  Run the FP32 net over calibration data</text>
+<text x="64" y="330" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  Record one amax per tensor</text>
+<text x="64" y="364" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  Histogram or entropy, not just max</text>
+<text x="64" y="398" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  Measure at the deployment shape</text>
+<line x1="64" y1="434" x2="366" y2="434" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="64" y="464" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1.4" fill="#9aa0a8">FAILS AS</text>
+<text x="64" y="492" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#6a7079">A large mAP drop, traced back to</text>
+<text x="64" y="514" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#6a7079">calibration data that missed the tails</text>
+<text x="64" y="536" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#6a7079">of the activation distribution.</text>
+
+<path d="M400 374 L415 374" stroke="#6a7079" stroke-width="1.5"/>
+<path d="M421 374 l-8 -5 l0 10 z" fill="#6a7079"/>
+
+<!-- card 2 -->
+<rect x="425" y="174" width="350" height="400" rx="14" fill="#fafafa" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="449" y="214" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#b7791f">QAT</text>
+<text x="449" y="240" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#6a7079">Can the weights live there?</text>
+<line x1="449" y1="260" x2="751" y2="260" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="449" y="296" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  Scales frozen, weights trainable</text>
+<text x="449" y="330" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  Fake Q/DQ inside the forward pass</text>
+<text x="449" y="364" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  A few epochs at a very small lr</text>
+<text x="449" y="398" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  Keep the best epoch, not the last</text>
+<line x1="449" y1="434" x2="751" y2="434" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="449" y="464" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1.4" fill="#9aa0a8">FAILS AS</text>
+<text x="449" y="492" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#6a7079">Loss divergence, or no recovery at</text>
+<text x="449" y="514" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#6a7079">all, because the learning rate was</text>
+<text x="449" y="536" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#6a7079">set for training, not for repair.</text>
+
+<path d="M785 374 L800 374" stroke="#6a7079" stroke-width="1.5"/>
+<path d="M806 374 l-8 -5 l0 10 z" fill="#6a7079"/>
+
+<!-- card 3 -->
+<rect x="810" y="174" width="350" height="400" rx="14" fill="#fafafa" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="834" y="214" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#6b46c1">QDQ translation</text>
+<text x="834" y="240" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#6a7079">Can the runtime be told?</text>
+<line x1="834" y1="260" x2="1136" y2="260" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="834" y="296" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  Export ONNX carrying Q/DQ nodes</text>
+<text x="834" y="330" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  Extract scales, propagate the gaps</text>
+<text x="834" y="364" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  Emit a calibration cache + precisions</text>
+<text x="834" y="398" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#20242b">·  Strip Q/DQ, leave a clean graph</text>
+<line x1="834" y1="434" x2="1136" y2="434" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="834" y="464" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1.4" fill="#9aa0a8">FAILS AS</text>
+<text x="834" y="492" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#6a7079">An engine that builds and runs, but</text>
+<text x="834" y="514" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#6a7079">quietly falls back off the DLA for</text>
+<text x="834" y="536" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#6a7079">layers whose scales never arrived.</text>
+
+<path d="M985 574 L985 594" stroke="#6a7079" stroke-width="1.5"/>
+<path d="M985 600 l-5 -8 l10 0 z" fill="#6a7079"/>
+<rect x="810" y="602" width="350" height="42" rx="8" fill="#f5f5f2" stroke="#e7e7e4" stroke-width="1.5"/>
+<text x="985" y="629" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600" fill="#20242b">INT8 engine on the DLA</text>
+</svg>

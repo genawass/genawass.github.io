@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNJHN77SZF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-HNJHN77SZF");
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quantization Is Three Problems, Not One — Genadiy Vasserman</title>
+    <meta
+      name="description"
+      content="PTQ, QAT, and QDQ translation: what each stage actually fixes when you take a detector to INT8 on the NVIDIA DLA, and how to tell which one broke."
+    />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Quantization Is Three Problems, Not One" />
+    <meta
+      property="og:description"
+      content="PTQ finds the ranges, QAT moves the weights into them, QDQ translation hands them to TensorRT. Three separate failure modes."
+    />
+    <meta property="og:url" content="https://genawass.github.io/posts/int8-qat-dla.html" />
+    <meta property="og:site_name" content="Genadiy Vasserman" />
+    <meta property="og:image" content="https://genawass.github.io/posts/int8-dla/share.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Quantization Is Three Problems, Not One" />
+    <meta
+      name="twitter:description"
+      content="What PTQ, QAT, and QDQ translation each fix when a detector goes INT8 on the NVIDIA DLA."
+    />
+    <meta name="twitter:image" content="https://genawass.github.io/posts/int8-dla/share.png" />
+
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .lede { font-size: 1.12rem; color: var(--text); }
+      .thesis, .case {
+        margin: 28px 0;
+        padding: 18px 20px;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      }
+      .thesis {
+        background: #f3effb;
+        border-color: #d8ccef;
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+      .case { font-size: 0.9rem; line-height: 1.65; }
+      .case p { margin: 6px 0; }
+      .case strong, .thesis strong { color: var(--text); }
+      .graphic { width: 100%; display: block; margin: 30px 0 10px; }
+      .chart-cap {
+        margin: 0 auto 36px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.86rem;
+        color: var(--muted);
+        text-align: center;
+      }
+      .comparison {
+        width: 100%;
+        margin: 28px 0 34px;
+        border-collapse: collapse;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.86rem;
+      }
+      .comparison th, .comparison td {
+        padding: 11px 10px;
+        border-bottom: 1px solid var(--rule);
+        text-align: left;
+        vertical-align: top;
+      }
+      .comparison th { color: var(--muted); font-weight: 500; }
+      .post-body pre {
+        margin: 22px 0 26px;
+        padding: 14px 16px;
+        background: #f7f7f4;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 0.8rem;
+        line-height: 1.55;
+      }
+      .post-body pre code { background: none; padding: 0; font-size: inherit; }
+      .post-body ul { margin: 0 0 18px; padding-left: 1.3rem; }
+      .post-body li { margin-bottom: 8px; }
+      .note {
+        margin-top: 44px;
+        padding-top: 18px;
+        border-top: 1px solid var(--rule);
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <article class="post">
+      <p class="backlink">
+        <a href="../index.html">← Genadiy Vasserman</a>
+        &nbsp;·&nbsp;
+        <a href="../blog.html">Blog</a>
+      </p>
+
+      <header class="post-head">
+        <h1>Quantization Is Three Problems, Not One</h1>
+        <time datetime="2026-07-25">July 25, 2026</time>
+      </header>
+
+      <div class="post-body">
+        <p class="lede">
+          Taking a detector to INT8 looks like one task with one switch. It is
+          three tasks with three switches, and
+          <strong>they fail in ways that look identical from the outside:
+          the numbers get worse.</strong>
+        </p>
+
+        <p>
+          The stated goal is simple enough. A YOLO-class detector runs in FP32 on
+          a Jetson or Drive-class board and does not hit the frame budget. INT8
+          on the deep learning accelerator promises the throughput, at a fraction
+          of the power, on a unit that is otherwise sitting idle while the GPU is
+          busy. The accuracy cost is supposed to be small.
+        </p>
+
+        <p>
+          What usually happens instead is that mAP drops by more than the project
+          can absorb, and the debugging session that follows has no obvious place
+          to start. Calibration data, quantizer placement, learning rate, ONNX
+          opset, and TensorRT layer assignment are all plausible culprits, and
+          they all produce the same symptom.
+        </p>
+
+        <div class="thesis">
+          <strong>The framing that helps:</strong> INT8 deployment is three
+          independent questions. <em>Where are the ranges?</em> is a measurement
+          problem, solved by post-training quantization. <em>Can the weights live
+          inside those ranges?</em> is a training problem, solved by
+          quantization-aware training. <em>Can the runtime be told about them?</em>
+          is a graph-plumbing problem, solved by Q/DQ translation. Each has its
+          own failure mode, its own diagnostic, and its own fix. Conflating them
+          is why the debugging session has no starting point.
+        </div>
+
+        <img class="graphic" src="int8-dla/01_stages.svg"
+          alt="Three cards showing PTQ, QAT and QDQ translation, each with its inputs, its outputs, and its characteristic failure mode" />
+        <p class="chart-cap">
+          One pipeline, three separable problems. The failure modes are what
+          distinguish them, not the tooling.
+        </p>
+
+        <h2>What INT8 actually asks of a network</h2>
+        <p>
+          An INT8 tensor stores 256 levels. Mapping a float tensor onto them
+          requires exactly one number per tensor — a scale, derived from the
+          largest magnitude the tensor is expected to take:
+        </p>
+
+<pre><code>scale = amax / 127          # symmetric signed INT8
+q     = round(x / scale)    # clamped to [-128, 127]
+x'    = q * scale           # what the network actually sees</code></pre>
+
+        <p>
+          Everything downstream is a consequence of that one number. Set
+          <code>amax</code> too high and the levels are spent on a range the
+          tensor never occupies, so small activations collapse into the same few
+          integers. Set it too low and the tail of the distribution is clipped,
+          which is exactly where a detector keeps its confident, high-response
+          activations. The whole discipline is choosing that number well, and
+          then making sure the number survives the trip to the deployment
+          runtime.
+        </p>
+
+        <p>
+          During PTQ and QAT the quantization is <em>fake</em>: values are
+          rounded to the INT8 grid and immediately converted back to float, so
+          the arithmetic still runs in FP32 but the network experiences the
+          precision loss. Every quantized layer gets two of these — one on its
+          input activations, one on its weights.
+        </p>
+
+        <h2>PTQ: calibration is a measurement, so measure the right thing</h2>
+        <p>
+          Post-training quantization replaces <code>Conv2d</code> and
+          <code>Linear</code> with quantized equivalents, runs the network over a
+          few hundred batches, and records the range each tensor occupies. No
+          gradients, no labels, minutes rather than hours.
+        </p>
+
+        <p>
+          Three things decide whether the resulting numbers are any good.
+        </p>
+
+        <p>
+          <strong>The estimator.</strong> Tracking a running max is the fast
+          default and the wrong one. A single outlier batch stretches
+          <code>amax</code> permanently and every subsequent tensor gets fewer
+          usable levels. Histogram calibration accumulates the distribution and
+          picks a clipping point that minimizes information loss, which is worth
+          the extra calibration time in essentially every case.
+        </p>
+
+        <p>
+          <strong>The data.</strong> Calibration is a sample-based estimate of a
+          distribution's tails, which means it inherits every bias in the sample.
+          Calibrating on a few hundred easy daytime frames and deploying at dusk
+          produces activations the scales were never sized for. Use the training
+          distribution, not a convenient slice of it.
+        </p>
+
+        <p>
+          <strong>The shape.</strong> This one costs people the most time.
+          Calibrate at the resolution and aspect ratio you will actually deploy —
+          if the engine runs at 544×960, calibrate at 544×960, with rectangular
+          letterboxing on and augmentation off. Activation statistics depend on
+          input scale, and calibrating a square 640 model for a wide deployment
+          shape means measuring a distribution the deployed network never sees.
+        </p>
+
+        <p>
+          Fusing batch norm into the preceding convolution before calibrating is
+          also worth doing when the target is the DLA. It is the graph the engine
+          will build anyway, and calibrating the unfused graph measures ranges
+          for tensors that will not exist at inference.
+        </p>
+
+        <div class="case">
+          <p><strong>Diagnostic:</strong> if PTQ alone lands within a point or two
+          of FP32, the ranges are fine and QAT will buy you very little. If it
+          collapses, do not reach for QAT — fix the calibration set first. QAT
+          cannot repair a badly estimated range; it inherits the scales.</p>
+        </div>
+
+        <h2>QAT: freeze the scales, move the weights</h2>
+        <p>
+          Quantization-aware training starts from the calibrated checkpoint and
+          fine-tunes with fake quantization live in the forward pass. The
+          gradients flow through the rounding operation via a straight-through
+          estimator, so the optimizer sees the loss the quantized network
+          actually incurs and can move weights away from configurations that
+          round badly.
+        </p>
+
+        <p>
+          The important asymmetry: <strong>the scales stay frozen and the weights
+          move.</strong> QAT is not a second attempt at calibration. It accepts
+          the ranges PTQ measured and finds weights that fit inside them.
+        </p>
+
+        <p>
+          That reframing sets the hyperparameters. This is repair, not training,
+          so it runs for a handful of epochs at a learning rate one to two orders
+          of magnitude below the original — <code>1e-5</code> is a reasonable
+          starting point. A warmup-and-decay schedule around that peak helps the
+          weights migrate into the quantized ranges without a shock. Anything
+          larger and the weights wander far enough from the distribution the
+          scales were measured on that the frozen scales become wrong, which
+          shows up as loss divergence a few hundred steps in.
+        </p>
+
+        <p>
+          The counterintuitive part is augmentation. PTQ and QAT want opposite
+          data loaders:
+        </p>
+
+<pre><code># PTQ — measure the deployment distribution
+calib_loader = create_loader(imgsz=(544, 960), rect=True,  augment=False)
+
+# QAT — train, so train like training
+qat_loader   = create_loader(imgsz=960,        rect=False, augment=True)</code></pre>
+
+        <p>
+          Calibration is a measurement, so it should see the deployment
+          distribution undisturbed. Fine-tuning is training, so it wants the
+          diversity that made the FP32 model good in the first place — mosaic
+          included, which forces square inputs. The two stages disagree because
+          they are doing different things, and copying the calibration loader
+          into the QAT stage quietly costs small-object recall.
+        </p>
+
+        <p>
+          Two operational details are worth hard-coding into whatever script you
+          use. Evaluate every epoch and keep the best checkpoint rather than the
+          last — QAT is not monotonic, and epoch 0 is usually a dip while the
+          weights reorganize. And log the FP32, PTQ, and per-epoch QAT numbers in
+          one place, because the shape of that curve is your primary diagnostic:
+        </p>
+
+        <table class="comparison">
+          <thead>
+            <tr><th>What the curve does</th><th>What it means</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Dips at QAT0, then climbs past PTQ</td>
+              <td>Working as intended. Let it run.</td>
+            </tr>
+            <tr>
+              <td>Flat at the PTQ value for every epoch</td>
+              <td>The learning rate is too small, or the loss is not reaching
+                  the layers that matter.</td>
+            </tr>
+            <tr>
+              <td>Climbs, then falls away</td>
+              <td>Learning rate too high; the weights have drifted off the
+                  frozen scales.</td>
+            </tr>
+            <tr>
+              <td>Never approaches FP32</td>
+              <td>A range problem wearing a training costume. Go back to
+                  calibration.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>QDQ translation: the stage nobody writes about</h2>
+        <p>
+          At this point there is a PyTorch checkpoint whose quantizers hold good
+          scales, and none of it is portable. The scales live in framework-specific
+          modules. TensorRT does not read them.
+        </p>
+
+        <p>
+          Exporting to ONNX preserves the information as explicit
+          <code>QuantizeLinear</code> and <code>DequantizeLinear</code> node
+          pairs wrapped around each quantized operation. That is a faithful
+          record of the fake quantization, and it is not what a TensorRT engine
+          builder wants for a DLA target. The translation step reads those pairs,
+          extracts the scales into a calibration cache the builder consumes
+          directly, and strips the Q/DQ nodes back out, leaving a clean graph
+          plus a table of ranges.
+        </p>
+
+        <p>
+          Three things make this less mechanical than it sounds.
+        </p>
+
+        <p>
+          <strong>Coverage gaps.</strong> Not every tensor in the graph had a
+          quantizer attached to it. Concat, Add, MaxPool, Reshape and friends sit
+          between quantized convolutions carrying tensors with no recorded range.
+          Every one of those gaps is a layer TensorRT cannot run in INT8, so it
+          falls back to a higher precision and, on a DLA target, often falls off
+          the accelerator entirely. Propagating scales across these operations —
+          a concat output takes the widest of its inputs, an elementwise add
+          takes the wider of its two, a pooling or reshape passes its input
+          through — closes most of the gaps, and repeating the pass a few times
+          closes the long chains that need several hops to resolve.
+        </p>
+
+        <p>
+          <strong>Per-channel weights.</strong> One scale for an entire
+          convolution kernel is a poor fit when output channels have genuinely
+          different magnitudes, and in a detector's head they do. One scale per
+          output channel costs nothing at inference and reliably recovers
+          accuracy that per-tensor quantization gives away. It requires ONNX
+          opset 13 or later for the axis attribute on <code>QuantizeLinear</code>;
+          in practice, export at a recent opset and stop thinking about it.
+        </p>
+
+        <p>
+          <strong>Deliberate fallbacks.</strong> Some layers should not be INT8 —
+          typically the first convolution, the detection head outputs, and
+          anything with a pathological dynamic range. The translation step is
+          where that decision gets recorded, as an explicit per-layer precision
+          list handed to the builder. Making it explicit is the point: an
+          intentional FP16 layer and an accidental one perform the same and mean
+          very different things.
+        </p>
+
+        <p>
+          The stage's output is a set of artifacts rather than a model: a clean
+          ONNX graph, a calibration cache, a precision configuration, and the
+          layer-precision arguments for the builder.
+        </p>
+
+<pre><code>trtexec --onnx=model_clean.onnx \
+        --int8 \
+        --calib=int8_calib_cache \
+        --useDLA=1 \
+        --allowGPUFallback=1 \
+        --saveEngine=model.engine</code></pre>
+
+        <p>
+          <code>--allowGPUFallback</code> is doing quiet work in that command.
+          Without it the build fails when a layer cannot run on the accelerator;
+          with it, the build succeeds and the layer moves to the GPU. Both
+          outcomes are useful, and the second one is only useful if you read the
+          build log. An engine that builds is not evidence that it built the way
+          you intended.
+        </p>
+
+        <h2>Designing the network for the accelerator</h2>
+        <p>
+          The DLA is fixed-function hardware with an opinion about which patterns
+          it can fuse, and that opinion reaches back into the model definition.
+          Two examples from the same codebase this came out of.
+        </p>
+
+        <p>
+          <strong>Activation choice.</strong> SiLU is <code>x · σ(x)</code>: a
+          sigmoid and an elementwise multiply, where the two operands have quite
+          different ranges and need separate quantizers to be represented well.
+          LeakyReLU is a single monotonic piecewise-linear operation that maps
+          onto the hardware directly. Swapping SiLU for LeakyReLU costs a little
+          FP32 accuracy and buys a substantially cleaner INT8 graph — a trade
+          that is usually worth it and almost never worth it on a GPU target.
+        </p>
+
+        <p>
+          <strong>Quantizers on non-convolutional ops.</strong> The default is to
+          quantize only convolutions and linear layers. Attaching quantizers to
+          concatenations and activations as well produces more Q/DQ nodes than a
+          GPU deployment needs, but it gives the translation step a measured
+          range for every tensor rather than an inferred one, which is what keeps
+          layers resident on the accelerator.
+        </p>
+
+        <p>
+          Both changes make the FP32 model marginally worse and the deployed
+          model meaningfully better. That trade only makes sense if the target is
+          decided before training starts, which is the real argument for
+          treating quantization as an architecture constraint rather than a
+          post-processing step.
+        </p>
+
+        <h2>Locating the stage that broke</h2>
+        <p>
+          Because the three stages fail identically from the outside, the useful
+          work is in cheap checks that isolate them. In rough order of how often
+          they find something:
+        </p>
+
+        <ul>
+          <li><strong>Count quantizers, then count calibrated quantizers.</strong>
+            If the second number is smaller, some module was skipped by the
+            replacement policy and is silently running in float. This is a
+            two-line check and it catches a surprising share of "why is INT8
+            slow" questions.</li>
+          <li><strong>Read the FP32 → PTQ → QAT progression as three numbers.</strong>
+            The gap that is largest tells you which stage owns the problem.</li>
+          <li><strong>Run a sensitivity sweep.</strong> Disable quantization one
+            layer at a time and measure mAP. A layer whose exclusion recovers
+            most of the loss is the layer to put on the fallback list — this is
+            how the precision configuration should be decided, not by intuition.</li>
+          <li><strong>Count Q/DQ nodes in the exported ONNX.</strong> Compare
+            against the quantizer count from the checkpoint. A large mismatch
+            means the export dropped quantization the training stage thought it
+            had.</li>
+          <li><strong>Read the TensorRT build log for layer assignment.</strong>
+            The engine will tell you which layers landed on the DLA and which
+            fell back. Every fallback that was not on your list is a scale that
+            never made it through translation.</li>
+        </ul>
+
+        <h2>When to stop early</h2>
+        <p>
+          The full pipeline is not always the right amount of work. PTQ alone is
+          minutes and often sufficient — if it lands close enough to FP32, the
+          ranges were well-behaved and there is nothing for QAT to repair. QAT
+          earns its cost when PTQ shows a real gap and the calibration set has
+          already been ruled out as the cause.
+        </p>
+
+        <p>
+          QDQ translation, unlike the other two, is not optional and not a tuning
+          knob. It is the step where the work becomes an engine. It is also the
+          step most likely to be treated as a build detail and handed to whoever
+          is free, which is why so many INT8 deployments end up running
+          two-thirds of their layers somewhere other than where the design
+          intended.
+        </p>
+
+        <p class="note">
+          Written from a YOLOv5 INT8 deployment targeting NVIDIA DLA, using
+          NVIDIA's PyTorch quantization toolkit for PTQ and QAT and
+          onnx-graphsurgeon for the translation stage. The framing generalizes
+          past YOLO; the specific numbers do not — measure your own.
+        </p>
+      </div>
+    </article>
+  </body>
+</html>
