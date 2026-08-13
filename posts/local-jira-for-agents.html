@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNJHN77SZF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-HNJHN77SZF");
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Local Jira for Your Agents — Genadiy Vasserman</title>
+    <meta
+      name="description"
+      content="Every coding agent lives in its own editor window, sometimes on its own machine, and none of them can see each other. Argus is a small local issue tracker they all share — with a board, a daily digest, and a scanner that checks their work."
+    />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="A Local Jira for Your Agents" />
+    <meta
+      property="og:description"
+      content="Ten tasks, ten windows, sometimes three machines. One small SQLite issue tracker that keeps them all in sync — free, public, nothing to install."
+    />
+    <meta property="og:url" content="https://genawass.github.io/posts/local-jira-for-agents.html" />
+    <meta property="og:site_name" content="Genadiy Vasserman" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="A Local Jira for Your Agents" />
+    <meta
+      name="twitter:description"
+      content="A small shared issue tracker for coding agents spread across windows and machines."
+    />
+
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .lede { font-size: 1.12rem; color: var(--text); }
+      .thesis, .case {
+        margin: 28px 0;
+        padding: 18px 20px;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      }
+      .thesis {
+        background: #f3effb;
+        border-color: #d8ccef;
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+      .case { font-size: 0.9rem; line-height: 1.65; }
+      .case p { margin: 6px 0; }
+      .case strong, .thesis strong { color: var(--text); }
+      .graphic { width: 100%; display: block; margin: 30px 0 10px; }
+      .chart-cap {
+        margin: 0 auto 36px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.86rem;
+        color: var(--muted);
+        text-align: center;
+      }
+      .comparison {
+        width: 100%;
+        margin: 28px 0 34px;
+        border-collapse: collapse;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.86rem;
+      }
+      .comparison th, .comparison td {
+        padding: 11px 10px;
+        border-bottom: 1px solid var(--rule);
+        text-align: left;
+        vertical-align: top;
+      }
+      .comparison th { color: var(--muted); font-weight: 500; }
+    </style>
+  </head>
+  <body>
+    <article class="post">
+      <p class="backlink">
+        <a href="../index.html">← Genadiy Vasserman</a>
+        &nbsp;·&nbsp;
+        <a href="../blog.html">Blog</a>
+      </p>
+
+      <header class="post-head">
+        <h1>A Local Jira for Your Agents</h1>
+        <time datetime="2026-08-13">August 13, 2026</time>
+      </header>
+
+      <div class="post-body">
+        <p class="lede">
+          If you run more than a couple of coding agents, you've probably hit
+          this: each one lives in its own editor window, some of them on other
+          machines, and <strong>none of them have any idea the others
+          exist.</strong> I got tired of being the only thing holding it
+          together, so I built a small shared task board for them.
+        </p>
+
+        <p>
+          It creeps up on you. One task gets a window and an agent. The next
+          touches a different repo, so it gets its own. A third needs the GPU
+          box, so it runs over SSH somewhere else. A fourth is a training run
+          that'll take two days. By Friday there are ten windows across three
+          machines, all doing real work, all completely unaware of each other.
+        </p>
+
+        <p>
+          Then someone asks what's actually running — often that someone is you,
+          on Monday. Answering means opening ten windows, SSHing into two
+          machines, and squinting at scrollback from sessions that ended days
+          ago and took their context with them. At that point you're not
+          managing tasks. You're being a message bus, which is the exact job you
+          got the agents for.
+        </p>
+
+        <div class="thesis">
+          <strong>The short version:</strong> the fix isn't smarter agents or
+          bigger context windows. It's somewhere outside the agents to write
+          things down — one small database every window can reach, with just
+          enough structure to query and just enough rules to stay tidy. Once
+          that exists, "what's running?" is a question you answer in a second
+          instead of a tour of your own machines.
+        </div>
+
+        <p>
+          That's <a href="https://github.com/genawass/argus">Argus</a>: a local,
+          Jira-shaped issue tracker for you and your agents. SQLite and the
+          Python standard library, no dependencies, no account, no service.
+          Agents file and update issues through native tools, there's a web
+          board for you, and a scanner quietly checks whether what the agents
+          say matches what your machines are actually doing.
+        </p>
+
+        <a href="argus/board.png">
+          <img class="graphic" src="argus/board.png"
+            alt="The Argus board: KPI row showing 12 open, 4 of 3 in progress with the WIP meter over its limit, 0 of 2 targets met and 0 needing attention; columns for backlog, todo, in progress, blocked, review and done; cards showing priority chips, due dates, labels, assignees, subtask links and inline metric sparklines." />
+        </a>
+        <p class="chart-cap">
+          The board on a demo project (click for full size). In progress is
+          amber because four things are running against a WIP limit of three;
+          one card is a day late; two carry metric sparklines against a target
+          they haven't reached yet.
+        </p>
+
+        <p>
+          It's one self-contained HTML file — no build step, no CDN, no
+          JavaScript framework. Drag a card to move it and illegal moves dim
+          while you drag, because the page asks the server which transitions are
+          legal instead of keeping its own copy of the rules.
+        </p>
+
+        <svg class="graphic" viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg"
+             role="img" aria-label="Agents in separate editor windows across three machines all write to one API and database; a board UI and a daily digest read from it; a scanner probes Slurm jobs, paths and HTTP endpoints and writes observed state back.">
+          <g font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5">
+            <text x="0" y="12" font-size="11" fill="#8a8a99">laptop</text>
+            <rect x="0" y="20" width="118" height="30" rx="5" fill="#ffffff" stroke="#cfcfd8"/>
+            <text x="10" y="39" fill="#3b3b46">agent · repo A</text>
+            <rect x="0" y="56" width="118" height="30" rx="5" fill="#ffffff" stroke="#cfcfd8"/>
+            <text x="10" y="75" fill="#3b3b46">agent · repo B</text>
+            <text x="0" y="108" font-size="11" fill="#8a8a99">gpu-box</text>
+            <rect x="0" y="116" width="118" height="30" rx="5" fill="#ffffff" stroke="#cfcfd8"/>
+            <text x="10" y="135" fill="#3b3b46">agent · training</text>
+            <text x="0" y="168" font-size="11" fill="#8a8a99">worker-04</text>
+            <rect x="0" y="176" width="118" height="30" rx="5" fill="#ffffff" stroke="#cfcfd8"/>
+            <text x="10" y="195" fill="#3b3b46">agent · eval</text>
+
+            <path d="M118 35 L182 100" stroke="#a9a9b6" stroke-width="1.1" fill="none"/>
+            <path d="M118 71 L182 104" stroke="#a9a9b6" stroke-width="1.1" fill="none"/>
+            <path d="M118 131 L182 112" stroke="#a9a9b6" stroke-width="1.1" fill="none"/>
+            <path d="M118 191 L182 120" stroke="#a9a9b6" stroke-width="1.1" fill="none"/>
+            <text x="126" y="152" fill="#8a8a99" font-size="10">MCP / HTTP</text>
+
+            <rect x="182" y="82" width="164" height="56" rx="6" fill="#f3effb" stroke="#d8ccef"/>
+            <text x="194" y="103" fill="#3b3b46">one API + SQLite</text>
+            <text x="194" y="120" fill="#8a8a99" font-size="10.5">guards · audit log ·</text>
+            <text x="194" y="132" fill="#8a8a99" font-size="10.5">stable keys (TAM-19)</text>
+
+            <path d="M346 100 L410 62" stroke="#a9a9b6" stroke-width="1.1" fill="none"/>
+            <path d="M346 120 L410 158" stroke="#a9a9b6" stroke-width="1.1" fill="none"/>
+            <rect x="410" y="40" width="150" height="34" rx="5" fill="#ffffff" stroke="#cfcfd8"/>
+            <text x="422" y="61" fill="#3b3b46">board UI</text>
+            <rect x="410" y="142" width="150" height="34" rx="5" fill="#ffffff" stroke="#cfcfd8"/>
+            <text x="422" y="163" fill="#3b3b46">07:55 digest → you</text>
+
+            <path d="M264 138 L264 216 L120 216" stroke="#7a5ea8" stroke-width="1.2" fill="none" stroke-dasharray="4 3"/>
+            <path d="M264 216 L560 216" stroke="#7a5ea8" stroke-width="1.2" fill="none" stroke-dasharray="4 3"/>
+            <text x="276" y="234" fill="#7a5ea8" font-size="10.5">scanner, every 15 min: squeue · paths · processes · HTTP</text>
+            <text x="276" y="250" fill="#8a8a99" font-size="10.5">writes observed state back, comments when it changes</text>
+          </g>
+        </svg>
+        <p class="chart-cap">
+          Agents write down what they did. The scanner writes down what actually
+          happened. The board shows you both.
+        </p>
+
+        <h2>What your agents get</h2>
+
+        <p>
+          Agents talk to it over MCP, so filing work is a normal tool call
+          rather than a wrestling match with shell quoting —
+          <code>tam_create_issue</code>, <code>tam_transition_issue</code>,
+          <code>tam_add_comment</code>, <code>tam_link_issues</code> and friends.
+          Point an editor at it once and every session in that workspace can read
+          and write the board:
+        </p>
+
+<pre><code>{ "mcpServers": { "tam": { "command": "/path/to/argus/bin/tam-mcp",
+    "env": { "TAM_API_URL": "http://10.0.0.10:8787",
+             "TAM_ACTOR": "navy-agent" } } } }</code></pre>
+
+        <p>
+          Give each agent its own <code>TAM_ACTOR</code> and ten agents stop
+          being one anonymous blur. Every change writes an audit row — who,
+          which field, from what to what, when — and it sticks around even if
+          the issue is later deleted. Six weeks on you can still ask who closed
+          something and what they said about it.
+        </p>
+
+        <p>
+          Issues look how you'd expect: type, priority, assignee, due date,
+          labels, subtasks, and links like <code>blocks</code> and
+          <code>blocked_by</code>. The quietly important bit is the
+          <strong>stable key</strong>. <code>TAM-19</code> is a name a different
+          agent, in a different window, three weeks later, can drop into a
+          comment — "still blocked by TAM-19" — and have it actually mean
+          something. Keys are never recycled, so a reference can't silently
+          point at the wrong thing.
+        </p>
+
+        <h2>A few rules, so it doesn't turn to mush</h2>
+
+        <p>
+          Any task board rots if nothing holds it up. With agents it rots
+          faster, because agents are agreeable: ask one to tidy the board and it
+          will cheerfully close everything. So the rules live in the database
+          rather than in a prompt you hope gets followed.
+        </p>
+
+        <ul>
+          <li><strong>Blocked needs a reason.</strong> Moving something to
+            <code>blocked</code> requires either a written cause or a
+            <code>blocked_by</code> link. Blocked items with no explanation are
+            how boards turn into noise.</li>
+          <li><strong>Open subtasks keep a parent open.</strong> You can override
+            with <code>--force</code>, and the audit log remembers that you
+            did.</li>
+          <li><strong>Status only moves through transitions.</strong> It can't be
+            set with a field edit, so nobody sidesteps the workflow by finding a
+            different endpoint.</li>
+        </ul>
+
+        <p>
+          All of that lives in one core, and the CLI, the HTTP API, the MCP
+          server and the board are thin layers on top with no logic of their own.
+          A test runs the same operation through all three and checks they agree
+          — including that they refuse the same things. Which means an agent
+          can't slip past a rule by knocking on a different door.
+        </p>
+
+        <h2>The bit I actually use most</h2>
+
+        <p>
+          Self-reported status is fine until it isn't. An agent that dies
+          mid-task leaves an issue sitting in <code>in_progress</code> forever,
+          and an agent that's simply mistaken sounds exactly like one that's
+          right.
+        </p>
+
+        <p>
+          So you can tie an issue to something real, and a timer checks it every
+          fifteen minutes:
+        </p>
+
+<pre><code>tam watch add TAM-1  slurm 38574 --config '{"parser":"yolo"}'
+tam watch add TAM-10 path  /mnt/datasets/corpus --host worker-01
+tam watch add TAM-4  http  'https://api.example.com/jobs/12' \
+  --config '{"state_path":"status","state_map":{"RUNNING":"running"}}'</code></pre>
+
+        <p>
+          It only ever reads, never touches your jobs, and it
+          <strong>comments on the issue when the state changes</strong>. A
+          training run that died at 3am is on the board when you get up, instead
+          of being discovered when you notice a log stopped growing. Slurm,
+          processes, paths, any shell command and any REST endpoint work out of
+          the box; anything weirder is a small Python file you drop in a folder.
+        </p>
+
+        <p>
+          Training scripts can push, too — a little standard-library reporter
+          records params and per-epoch metrics against an issue, with targets so
+          the board can tell you <em>met</em> or <em>not met, and by how much</em>.
+          It swallows its own errors on purpose: reporting should never be able
+          to kill the job it's reporting on.
+        </p>
+
+        <h2>One check-in a day</h2>
+
+        <p>
+          Agents run all night; you don't. So there's a digest, split into a
+          half that can't fail and a half worth your attention. At 07:55 a timer
+          does pure local computation — no network, no agent — and writes the
+          day's summary: overdue, due today, in progress, blocked and why,
+          stale, the triage pile, what closed since yesterday, and the deltas.
+          At 08:00 you read it and say what you want in plain English, and those
+          decisions land in the database with your name on them.
+        </p>
+
+        <p>
+          The generating half never depends on anything being up. The deciding
+          half stays yours, because that's the part actually worth doing.
+        </p>
+
+        <h2>Give it a go</h2>
+
+        <p>
+          It's public at
+          <a href="https://github.com/genawass/argus">github.com/genawass/argus</a>,
+          and there's genuinely nothing to install beyond Python 3.12:
+        </p>
+
+<pre><code>git clone https://github.com/genawass/argus &amp;&amp; cd argus
+./bin/tam init
+./bin/tam issue create -t "Renew TLS certs" -p p0 -d +7d
+./bin/tam-api                     # board at http://127.0.0.1:8787/</code></pre>
+
+        <p>
+          If your work spans machines, one host runs the API and everything else
+          is just a URL and a token — nothing to install on the other boxes. The
+          same applies to agents: point their MCP config at that URL and they're
+          on the board, wherever they happen to be running.
+        </p>
+
+        <div class="case">
+          <p><strong>Being upfront about the limits.</strong> This is built for
+          one person and their agents. There are no per-user permissions — one
+          token gets full read and write — so keep it on a network you trust.
+          One host owns the database and serves the rest, so if that machine is
+          down, so is the board until you restore a snapshot somewhere else. And
+          <code>TAM_ACTOR</code> is self-declared: the log records what an agent
+          says it is. That's exactly why the watches exist.</p>
+        </div>
+
+        <p>
+          If you've got one agent on one machine, honestly, skip it — the
+          scrollback is your record and it's fine. But the moment there are
+          several, spread across machines, doing work that outlives any single
+          session, a shared board stops feeling like overhead and starts being
+          the only thing that knows what's going on.
+        </p>
+
+        <p class="note">
+          Written from daily use running detector training and dataset work
+          across a small cluster, with agents in separate editor windows all
+          filing against one board. Argus is Python 3.12 standard library and
+          SQLite, and it's public — issues, ideas and forks all welcome at
+          <a href="https://github.com/genawass/argus">github.com/genawass/argus</a>.
+        </p>
+      </div>
+    </article>
+  </body>
+</html>
