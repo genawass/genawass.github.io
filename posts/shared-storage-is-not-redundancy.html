@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNJHN77SZF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-HNJHN77SZF");
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shared Storage Is Not Redundancy — Genadiy Vasserman</title>
+    <meta
+      name="description"
+      content="A SQLite database on NFS looks like it has a spare copy. Measured on an NFSv4 mount, a second host writing to it lost 100% of its writes. What that implies for where the data and the code should live."
+    />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Shared Storage Is Not Redundancy" />
+    <meta
+      property="og:description"
+      content="If only one host can safely open the file, the shared filesystem is not buying availability. It is buying a corruption surface and a second copy of your code."
+    />
+    <meta property="og:url" content="https://genawass.github.io/posts/shared-storage-is-not-redundancy.html" />
+    <meta property="og:site_name" content="Genadiy Vasserman" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Shared Storage Is Not Redundancy" />
+    <meta
+      name="twitter:description"
+      content="What SQLite on NFS actually does with two writers, and where the data belongs instead."
+    />
+
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .lede { font-size: 1.12rem; color: var(--text); }
+      .thesis, .case {
+        margin: 28px 0;
+        padding: 18px 20px;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      }
+      .thesis {
+        background: #f3effb;
+        border-color: #d8ccef;
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+      .case { font-size: 0.9rem; line-height: 1.65; }
+      .case p { margin: 6px 0; }
+      .case strong, .thesis strong { color: var(--text); }
+      .graphic { width: 100%; display: block; margin: 30px 0 10px; }
+      .chart-cap {
+        margin: 0 auto 36px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.86rem;
+        color: var(--muted);
+        text-align: center;
+      }
+      .comparison {
+        width: 100%;
+        margin: 28px 0 34px;
+        border-collapse: collapse;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.86rem;
+      }
+      .comparison th, .comparison td {
+        padding: 11px 10px;
+        border-bottom: 1px solid var(--rule);
+        text-align: left;
+        vertical-align: top;
+      }
+      .comparison th { color: var(--muted); font-weight: 500; }
+    </style>
+  </head>
+  <body>
+    <article class="post">
+      <p class="backlink">
+        <a href="../index.html">← Genadiy Vasserman</a>
+        &nbsp;·&nbsp;
+        <a href="../blog.html">Blog</a>
+      </p>
+
+      <header class="post-head">
+        <h1>Shared Storage Is Not Redundancy</h1>
+        <time datetime="2026-08-13">August 13, 2026</time>
+      </header>
+
+      <div class="post-body">
+        <p class="lede">
+          Putting the database on the cluster's shared mount feels like the
+          careful choice. Every node can see it, and if a machine dies the file
+          is still there. <strong>The second half is true and the first half is
+          a trap</strong> — and the measurement that shows why also decides
+          where the code should live.
+        </p>
+
+        <p>
+          The system in question is small and unglamorous: a Jira-shaped issue
+          database for one person, driven by AI agents working across a compute
+          cluster. Agents file issues, attach watches to training jobs, record
+          metrics against targets, and a digest lands before the morning review.
+          SQLite, Python standard library, no dependencies. The whole thing is
+          under two megabytes of data.
+        </p>
+
+        <p>
+          It was laid out the obvious way. The database sat on the NFS mount at
+          <code>/mnt/datasets/tam/data/tam.db</code>, and the code sat next to it
+          at <code>/mnt/datasets/tam/code</code> so that every node could run
+          <code>tam</code> without an install. One place for everything, visible
+          everywhere. That arrangement survived exactly as long as nobody asked
+          what it was actually providing.
+        </p>
+
+        <div class="thesis">
+          <strong>The framing that helps:</strong> a shared filesystem gives you
+          <em>visibility</em> from many hosts. It does not give you
+          <em>concurrent access</em>, and for a single-file database those are
+          not the same purchase. Once you measure that only one host can open
+          the file safely, three things follow. The mount is not buying
+          availability. The second copy of the code is not buying convenience,
+          it is buying drift. And the redundancy you thought you had needs to be
+          bought separately, somewhere else.
+        </div>
+
+        <svg class="graphic" viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg"
+             role="img" aria-label="Before: two hosts both reaching a database on NFS, with the second host's writes failing. After: one host owning a local database, other nodes reaching it over HTTP, and NFS reduced to holding snapshots.">
+          <g font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-size="12">
+            <text x="0" y="14" font-size="12.5" font-weight="600" fill="#3b3b46">BEFORE — the mount holds the truth</text>
+            <rect x="0" y="28" width="150" height="42" rx="6" fill="#ffffff" stroke="#cfcfd8"/>
+            <text x="12" y="46" fill="#3b3b46">host A</text>
+            <text x="12" y="62" fill="#8a8a99" font-size="10.5">writes: fine</text>
+            <rect x="0" y="86" width="150" height="42" rx="6" fill="#ffffff" stroke="#cfcfd8"/>
+            <text x="12" y="104" fill="#3b3b46">host B</text>
+            <text x="12" y="120" fill="#b0344a" font-size="10.5">writes: lost</text>
+            <line x1="150" y1="49" x2="252" y2="70" stroke="#a9a9b6" stroke-width="1.2"/>
+            <line x1="150" y1="107" x2="252" y2="86" stroke="#b0344a" stroke-width="1.2" stroke-dasharray="4 3"/>
+            <text x="196" y="112" fill="#b0344a" font-size="13">✕</text>
+            <rect x="252" y="56" width="176" height="44" rx="6" fill="#f3effb" stroke="#d8ccef"/>
+            <text x="264" y="74" fill="#3b3b46">NFS: tam.db + code/</text>
+            <text x="264" y="90" fill="#8a8a99" font-size="10.5">one writer, silently</text>
+
+            <text x="0" y="164" font-size="12.5" font-weight="600" fill="#3b3b46">AFTER — the serving host holds the truth</text>
+            <rect x="0" y="178" width="176" height="52" rx="6" fill="#f3effb" stroke="#d8ccef"/>
+            <text x="12" y="196" fill="#3b3b46">serving host</text>
+            <text x="12" y="212" fill="#8a8a99" font-size="10.5">tam.db on local disk</text>
+            <text x="12" y="225" fill="#8a8a99" font-size="10.5">HTTP API :8787</text>
+            <line x1="176" y1="196" x2="266" y2="196" stroke="#a9a9b6" stroke-width="1.2"/>
+            <text x="184" y="190" fill="#8a8a99" font-size="10">HTTP</text>
+            <rect x="266" y="178" width="132" height="34" rx="6" fill="#ffffff" stroke="#cfcfd8"/>
+            <text x="278" y="199" fill="#3b3b46">any other node</text>
+            <line x1="88" y1="230" x2="88" y2="244" stroke="#a9a9b6" stroke-width="1.2"/>
+            <rect x="430" y="178" width="200" height="52" rx="6" fill="#ffffff" stroke="#cfcfd8"/>
+            <text x="442" y="196" fill="#3b3b46">NFS: snapshots + token</text>
+            <text x="442" y="212" fill="#8a8a99" font-size="10.5">write-once artifacts,</text>
+            <text x="442" y="225" fill="#8a8a99" font-size="10.5">never a live database</text>
+            <line x1="176" y1="212" x2="430" y2="204" stroke="#a9a9b6" stroke-width="1.2" stroke-dasharray="4 3"/>
+          </g>
+        </svg>
+        <p class="chart-cap">
+          The mount does not disappear. It stops being authoritative and starts
+          holding only things that are written once and never contended.
+        </p>
+
+        <h2>What two hosts actually do to a SQLite file</h2>
+
+        <p>
+          This is worth measuring rather than reasoning about, because the
+          failure is not the one people expect. The expectation is corruption —
+          a mangled file, an integrity check that screams. What actually happens
+          is quieter and worse.
+        </p>
+
+        <p>
+          Two hosts writing the same file on an NFSv4 mount, three hundred writes
+          each:
+        </p>
+
+        <table class="comparison">
+          <thead>
+            <tr><th>journal mode</th><th>result</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>WAL (the default, and the fast one)</td>
+              <td>The second host lost <strong>100%</strong> of its writes.
+                  <code>disk I/O error</code>, loudly, on every attempt.</td>
+            </tr>
+            <tr>
+              <td>TRUNCATE (rollback journal)</td>
+              <td>Both hosts wrote successfully. <strong>11% of writes
+                  vanished</strong> — 33 of 300 — with no error anywhere.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          The WAL result is the good one. WAL keeps coordination state in a
+          shared-memory index file that has no meaning across machines, so the
+          second host fails immediately and obviously. You find out in seconds.
+        </p>
+
+        <p>
+          The rollback-journal result is the dangerous one, and it is what you
+          get if you "fix" the WAL error by changing journal modes. NFS advisory
+          locking is not strong enough to serialise the writers, so both of them
+          believe they succeeded and one in nine updates is simply gone. There is
+          no error to alert on and no log line to grep. You discover it weeks
+          later when someone asks why a task they closed is open again.
+        </p>
+
+        <p>
+          <strong>The diagnostic that matters:</strong> if a shared-storage
+          database appears to work with two writers, that is not evidence it is
+          safe. It is evidence you are in the mode that loses writes silently.
+        </p>
+
+        <h2>The corollary nobody draws</h2>
+
+        <p>
+          The usual response to this measurement is a guard, and we wrote one:
+          the config records which host owns the file, every other host is
+          refused with a clear error and a non-zero exit code, and an environment
+          variable lifts the guard for deliberate takeover. That is correct and
+          it stopped the bleeding.
+        </p>
+
+        <p>
+          It also left the interesting question unasked for months. If exactly
+          one host may ever open the file, <em>what is the shared filesystem
+          contributing?</em>
+        </p>
+
+        <p>
+          Not availability — a second host could never serve from that file, by
+          measurement. Not durability in any meaningful sense — NFS redundancy
+          protects against a disk failing, not against a bad migration, a wrong
+          <code>DELETE</code>, or the file being removed. What it contributed
+          was a corruption surface and a standing invitation to try the thing
+          that loses writes.
+        </p>
+
+        <p>
+          The code copy had the same shape of problem. Staging the tree on the
+          mount meant every node could run the CLI without an install, which is
+          genuinely convenient right up until the copy on the mount and the
+          checkout on the serving host disagree. Ours did. The fix at the time
+          was a publish script — refuse to publish a dirty tree, rsync with
+          <code>--delete</code>, stamp the deployed commit into a dotfile — and
+          it worked. But a script whose entire job is keeping two copies
+          identical is a strong hint that the second copy should not exist.
+        </p>
+
+        <div class="case">
+          <p><strong>The question that resolved it:</strong> what does a node
+          actually need in order to be useful?</p>
+          <p>Not the code. The answer was an address and a token. Everything
+          else — the CLI, the agent tooling, the board — was a client of an HTTP
+          API that already existed and already enforced every rule server-side.
+          The shared code tree was solving a problem the API had already
+          solved.</p>
+        </div>
+
+        <h2>What replaced it</h2>
+
+        <p>
+          The database moved to local disk on the one host that was already the
+          only permitted writer. Nothing about the write path changed, because
+          nothing about the write path could ever have been shared. What changed
+          is that the constraint is now enforced by physics instead of by a guard
+          and a README: there is no second path to the file.
+        </p>
+
+        <p>
+          Every other node became an HTTP client. That was mostly a deletion:
+          the remote CLI presents the same method surface as the local service,
+          so the command-line tool runs against a remote database with no
+          branching, and a parity test diffs the two public surfaces so a method
+          added to one and not the other fails the build. The agent-facing
+          documentation moved into the repository and is now served by the same
+          API that enforces the rules it describes — a node reads its
+          instructions from the host that will accept or reject its writes, so
+          the two cannot drift.
+        </p>
+
+        <p>
+          The shared mount kept exactly three things, and the list is the point:
+        </p>
+
+        <ul>
+          <li><strong>An environment file</strong> with two variables — the API
+            URL and the token. It is the bootstrap, and it is deliberately not
+            code.</li>
+          <li><strong>The token itself</strong>, so rotation is one file that
+            every node picks up on next login.</li>
+          <li><strong>Snapshots.</strong> The database now lives on a single
+            local disk, so backups must land somewhere else or they are not
+            backups. This is the one job the mount was always good at: holding
+            things that are written once and never contended.</li>
+        </ul>
+
+        <p>
+          That last point is the trade made explicit. The old arrangement felt
+          redundant and had no off-host copy of anything. The new one is openly
+          single-host and has a consistent, integrity-checked snapshot on
+          separate storage. The second is strictly safer, and it only looks
+          worse.
+        </p>
+
+        <h2>What "not a single host" actually costs</h2>
+
+        <p>
+          Making this genuinely multi-host is a real question with an unpopular
+          answer, and it is worth separating the two failure modes before
+          spending anything.
+        </p>
+
+        <p>
+          <strong>Durability</strong> — the disk dies and the data is gone. This
+          is cheap. Snapshot to other storage on a timer. A two-megabyte
+          database can be snapshotted every couple of hours for effectively
+          nothing, and SQLite's online backup API produces a consistent copy
+          even against live writers, which a filesystem-level copy of a WAL
+          database does not.
+        </p>
+
+        <p>
+          <strong>Availability</strong> — the host is down and nobody can file
+          anything. This is where the money goes, and the honest options are
+          tiered:
+        </p>
+
+        <ul>
+          <li><strong>Warm standby.</strong> Frequent snapshots plus a promote
+            script that restores, starts the service, and repoints the address.
+            Recovery in minutes, no new software, every guard and index intact.
+            The address lives in one file on shared storage, which makes
+            promotion a one-line edit rather than a change on every node.</li>
+          <li><strong>Continuous replication.</strong> Stream the WAL to another
+            host and the recovery point drops from hours to seconds. One binary,
+            no schema change.</li>
+          <li><strong>An actually distributed database.</strong> Automatic
+            failover, multiple writers, and a rewrite: a different storage
+            engine, full-text search replaced, every guard retested, and a
+            cluster to operate forever. For a single-user system this is
+            spending weeks and permanent operational cost to avoid a manual
+            step that fires once a year.</li>
+        </ul>
+
+        <p>
+          Most systems that reach for the third option needed the first one. The
+          instinct to avoid a single point of failure is right; the reflex to
+          solve it with a distributed datastore usually is not, and a shared
+          filesystem is that reflex in its cheapest and most misleading form.
+        </p>
+
+        <h2>The bill for making everything a client</h2>
+
+        <p>
+          Every architectural choice sends an invoice, and this one arrived
+          during the migration itself.
+        </p>
+
+        <p>
+          Once every node is an API client, every working shell holds production
+          credentials — that is what the environment file is for. The test suite
+          reads the same variables, and the CLI treats a set API URL as "use the
+          remote service". So a single command that sourced the environment file
+          and then ran the tests pointed the entire suite at the live database.
+          Twenty-five test fixtures — issues titled <code>b0</code>,
+          <code>late</code>, <code>Parity</code> — were created in production,
+          and the suite reported them as failures rather than as what they were.
+        </p>
+
+        <p>
+          The fix is four lines: the test fixture now clears the client
+          variables, so a suite can never inherit a pointer at the real service.
+          The lesson is not four lines. Under the old layout this failure was
+          impossible, because reaching the data required being the owner host.
+          Making every node a client is the right architecture and it widens the
+          blast radius of an ambient environment variable to include everything.
+          If your credentials are in every shell by design, your test harness
+          must assume they are there and refuse them explicitly.
+        </p>
+
+        <h2>What to take from this</h2>
+
+        <p>
+          The generalisable part is not about SQLite or NFS. It is that
+          infrastructure gets adopted for the property it appears to have rather
+          than the one it delivers, and a shared filesystem is unusually good at
+          appearing. It looks like redundancy, it looks like distribution, and
+          it looks like a deployment mechanism, while actually providing
+          visibility and nothing else.
+        </p>
+
+        <p>
+          The test that separates the two is cheap: name the failure the
+          component is supposed to survive, then check whether it actually
+          survives it. If the answer is that only one host can use the thing
+          anyway, you are not running a distributed system. You are running a
+          single-host system with extra steps, and the honest version of it is
+          both simpler and safer.
+        </p>
+
+        <p class="note">
+          Written from migrating a single-user issue database off a shared NFSv4
+          mount onto local disk with an HTTP API for the cluster. The write-loss
+          figures are from that specific mount and that SQLite build — the
+          framing generalises, the percentages do not, so measure your own.
+        </p>
+      </div>
+    </article>
+  </body>
+</html>
