@@ -22,7 +22,7 @@
     <meta property="og:title" content="Measured, Not Reported: Four Edge Trackers on Anti-UAV410" />
     <meta
       property="og:description"
-      content="SAM 2.1, EfficientTAM, UETrack-B and UETrack-T on 129,691 thermal frames: a three-way tie on loss rate, and a clear winner on recovery."
+      content="SAM 2.1, EfficientTAM, UETrack-B and UETrack-T on 129,691 thermal frames, with Jetson Orin NX latency: a three-way tie on loss rate, and a clear winner on recovery."
     />
     <meta property="og:url" content="https://genawass.github.io/posts/antiuav410-trackers.html" />
     <meta property="og:site_name" content="Genadiy Vasserman" />
@@ -129,7 +129,8 @@
           frames. What separates them is what happens <em>after</em> they lose it.
           <strong>UETrack-B ends 27 of 120 sequences with the drone lost for good;
           SAM 2.1 ends 46.</strong> And when the drone leaves the frame for long, all
-          four fail the same way.
+          four fail the same way. On a Jetson Orin NX, UETrack-B also runs in
+          <strong>3.9 ms a frame &mdash; nearly 8&times; faster than EfficientTAM</strong>.
         </div>
 
         <h2>The benchmark</h2>
@@ -194,13 +195,14 @@
                 <th>Model</th><th>Family</th>
                 <th class="num">Lost% &darr;</th><th class="num">Ends lost &darr;</th>
                 <th class="num">Accuracy &uarr;</th><th class="num">AUC &uarr;</th><th class="num">Precision &uarr;</th>
+                <th class="num">Orin NX ms &darr;</th>
               </tr>
             </thead>
             <tbody>
-              <tr class="best"><td>UETrack-B</td><td>crop</td><td class="num">26.6</td><td class="num">27 / 120</td><td class="num">73.3</td><td class="num">54.8</td><td class="num">72.7</td></tr>
-              <tr><td>EfficientTAM-Ti</td><td>full-frame</td><td class="num">27.4</td><td class="num">38 / 120</td><td class="num">68.1</td><td class="num">49.6</td><td class="num">72.2</td></tr>
-              <tr><td>SAM 2.1-tiny</td><td>full-frame</td><td class="num">29.4</td><td class="num">46 / 120</td><td class="num">67.9</td><td class="num">48.2</td><td class="num">70.2</td></tr>
-              <tr><td>UETrack-T</td><td>crop</td><td class="num">34.9</td><td class="num">50 / 120</td><td class="num">70.9</td><td class="num">48.2</td><td class="num">64.6</td></tr>
+              <tr class="best"><td>UETrack-B</td><td>crop</td><td class="num">26.6</td><td class="num">27 / 120</td><td class="num">73.3</td><td class="num">54.8</td><td class="num">72.7</td><td class="num">3.9</td></tr>
+              <tr><td>EfficientTAM-Ti</td><td>full-frame</td><td class="num">27.4</td><td class="num">38 / 120</td><td class="num">68.1</td><td class="num">49.6</td><td class="num">72.2</td><td class="num">29.9</td></tr>
+              <tr><td>SAM 2.1-tiny</td><td>full-frame</td><td class="num">29.4</td><td class="num">46 / 120</td><td class="num">67.9</td><td class="num">48.2</td><td class="num">70.2</td><td class="num">&mdash;</td></tr>
+              <tr><td>UETrack-T</td><td>crop</td><td class="num">34.9</td><td class="num">50 / 120</td><td class="num">70.9</td><td class="num">48.2</td><td class="num">64.6</td><td class="num">2.5</td></tr>
             </tbody>
           </table>
         </div>
@@ -269,32 +271,74 @@
           exactly where the targets are hardest.
         </p>
 
+        <h2>Latency on a Jetson Orin NX</h2>
+        <p>
+          Accuracy says which tracker holds the drone; an edge budget says which ones
+          you can afford. I built each network as a TensorRT fp16 engine on a
+          <strong>Jetson Orin NX 16GB</strong> (MAXN power mode, JetPack 6.2,
+          TensorRT 10.3) and timed it with <code>trtexec</code>: batch 1, static
+          shapes, 25 seconds after a 2-second warm-up, mean GPU compute time.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Model</th><th class="num">ms / frame</th><th class="num">FPS</th><th>What is timed</th></tr></thead>
+            <tbody>
+              <tr><td>UETrack-T</td><td class="num">2.5</td><td class="num">397</td><td>one engine: encoder + box head</td></tr>
+              <tr class="best"><td>UETrack-B</td><td class="num">3.9</td><td class="num">257</td><td>one engine: encoder + box head</td></tr>
+              <tr><td>EfficientTAM-Ti</td><td class="num">29.9</td><td class="num">33</td><td>four engines, with the 7-slot memory bank benchmarked above; memory attention alone is 18.3 ms</td></tr>
+              <tr><td>SAM 2.1-tiny</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td>not measured: its video predictor has no static TensorRT export in my setup</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Two things follow. <strong>UETrack-B's speed is no reason to pick anything
+          else</strong>: it costs 1.4 ms a frame more than UETrack-T, and both fit in a
+          30 fps camera budget eight times over or more. And <strong>EfficientTAM
+          barely fits</strong>: at 29.9 ms it uses the whole budget for a 30 fps
+          stream before cropping, pre-processing or anything else runs. Shrinking its
+          memory bank to 4 slots brings it to 23.2 ms &mdash; but that is not the
+          configuration measured here, and a smaller bank usually costs some recovery.
+        </p>
+        <p>
+          These are the networks alone. Cropping and resizing, pre- and
+          post-processing, and the host-side bookkeeping of EfficientTAM's memory bank
+          come on top. That is also why they are not comparable with the 60 FPS the
+          UETrack paper reports for UETrack-B on a Jetson AGX Xavier in my June table:
+          a different device, and a whole tracking loop rather than one engine.
+        </p>
+
         <h2>Back to the June recommendations</h2>
         <p>The review made three calls. Measured on this benchmark:</p>
         <h3>&ldquo;Start with UETrack-B if accuracy matters&rdquo; &mdash; holds.</h3>
         <p>
           Best boxes, best recovery, and tied for the lowest loss rate. It is the
-          only model here with no column where something else is clearly better.
+          only model here with no column where something else is clearly better
+          &mdash; and at 3.9 ms a frame on an Orin NX, speed is no argument against it.
         </p>
-        <h3>&ldquo;UETrack-T if latency is the main constraint&rdquo; &mdash; holds, with a real price.</h3>
+        <h3>&ldquo;UETrack-T if latency is the main constraint&rdquo; &mdash; only if you run many tracks.</h3>
         <p>
           On small thermal targets its speed is not free: 8.3 points more frames lost
-          than UETrack-B and 23 more sequences that end lost. If you ship it, ship it
-          with a re-detection path.
+          than UETrack-B and 23 more sequences that end lost. And on an Orin NX the
+          speed it buys is small &mdash; 2.5 ms against 3.9 &mdash; with both far
+          inside a 30 fps budget. It pays off when one module has to carry many
+          tracks at once. If you ship it, ship it with a re-detection path.
         </p>
         <h3>&ldquo;Don't start with SAM 2 unless you need masks&rdquo; &mdash; holds.</h3>
         <p>
           For bounding boxes, SAM 2.1 is no better at holding the target, 5.5 points
           worse on box quality, and the most likely of the three strong models to end
           a sequence lost. Its memory bank does not buy reacquisition here.
-          EfficientTAM, the efficient model from the same family, matched it on loss
-          and ended fewer sequences lost (38 against 46).
+          EfficientTAM, the efficient model from the same family, is statistically
+          tied with it on both loss rate and box quality. It ended fewer sequences
+          lost (38 against 46), but head to head that gap is borderline &mdash; and
+          EfficientTAM ran with its memory spaced out, a setting SAM 2.1 was not
+          given.
         </p>
 
         <h2>What this does not show</h2>
         <ul>
           <li><strong>One benchmark, one modality.</strong> Thermal drones against sky and clutter. On colour video, or on targets the camera is actively following, the order can change &mdash; and does, on other data I have run these same models on.</li>
-          <li><strong>No latency.</strong> The runs shared a GPU, so their timings mean nothing here. The June post has the reported edge numbers; measure on your own hardware.</li>
+          <li><strong>Engine-only latency, and none for SAM 2.1.</strong> The Orin numbers time the networks alone. The accuracy numbers come from PyTorch runs on a desktop GPU, not from the Orin's fp16 engines; the UETrack-T and EfficientTAM engines have been checked against PyTorch output, while the UETrack-B engine was built for this post and so far only timed.</li>
           <li><strong>No re-detection.</strong> Every tracker ran alone. The out-of-view result says that is exactly the gap a real system has to close.</li>
           <li><strong>Not Anti-UAV's own metric.</strong> Out-of-view frames are skipped, not scored, so these results sit beside the published Anti-UAV410 leaderboard, not on it.</li>
         </ul>
