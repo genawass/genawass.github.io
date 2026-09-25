@@ -1,0 +1,159 @@
+{
+  "benchmark": "Anti-UAV410 / test",
+  "sequences": 120,
+  "frames": 129691,
+  "frames_under_32px": 64053,
+  "sequences_with_absence": 31,
+  "contradictory_label_frames": 49,
+  "sequences_out_of_view_30": 12,
+  "longest_absence": 253,
+  "size_buckets": {
+    "tiny (<16px)": 26,
+    "small (16-32px)": 25,
+    "medium (32-64px)": 68,
+    "large (>=64px)": 1
+  },
+  "reference": "UETrack-B",
+  "resamples": 10000,
+  "models": [
+    {
+      "label": "UETrack-B",
+      "family": "crop",
+      "lost": 26.6,
+      "ends_lost": 27,
+      "accuracy": 73.3,
+      "auc": 54.8,
+      "precision": 72.7,
+      "by_size": {
+        "tiny (<16px)": 50.1,
+        "small (16-32px)": 30.2,
+        "medium (32-64px)": 16.6,
+        "large (>=64px)": 0.0
+      }
+    },
+    {
+      "label": "EfficientTAM-Ti",
+      "family": "full-frame",
+      "lost": 27.4,
+      "ends_lost": 38,
+      "accuracy": 68.1,
+      "auc": 49.6,
+      "precision": 72.2,
+      "by_size": {
+        "tiny (<16px)": 47.9,
+        "small (16-32px)": 33.6,
+        "medium (32-64px)": 17.7,
+        "large (>=64px)": 0.0
+      },
+      "vs_reference": {
+        "lost": [
+          0.9,
+          -3.0,
+          4.7
+        ],
+        "accuracy": [
+          -5.2,
+          -6.9,
+          -3.5
+        ],
+        "ends_lost_pts": [
+          9.2,
+          0.8,
+          17.5
+        ]
+      }
+    },
+    {
+      "label": "SAM 2.1-tiny",
+      "family": "full-frame",
+      "lost": 29.4,
+      "ends_lost": 46,
+      "accuracy": 67.9,
+      "auc": 48.2,
+      "precision": 70.2,
+      "by_size": {
+        "tiny (<16px)": 53.2,
+        "small (16-32px)": 30.4,
+        "medium (32-64px)": 20.4,
+        "large (>=64px)": 0.0
+      },
+      "vs_reference": {
+        "lost": [
+          2.9,
+          -1.1,
+          7.0
+        ],
+        "accuracy": [
+          -5.5,
+          -7.1,
+          -3.8
+        ],
+        "ends_lost_pts": [
+          15.8,
+          7.5,
+          24.2
+        ]
+      }
+    },
+    {
+      "label": "UETrack-T",
+      "family": "crop",
+      "lost": 34.9,
+      "ends_lost": 50,
+      "accuracy": 70.9,
+      "auc": 48.2,
+      "precision": 64.6,
+      "by_size": {
+        "tiny (<16px)": 58.7,
+        "small (16-32px)": 40.1,
+        "medium (32-64px)": 24.4,
+        "large (>=64px)": 0.0
+      },
+      "vs_reference": {
+        "lost": [
+          8.3,
+          5.6,
+          11.4
+        ],
+        "accuracy": [
+          -2.4,
+          -4.0,
+          -0.9
+        ],
+        "ends_lost_pts": [
+          19.2,
+          10.8,
+          27.5
+        ]
+      }
+    }
+  ],
+  "by_absence": {
+    "never absent": {
+      "n": 89,
+      "UETrack-B": 18.2,
+      "EfficientTAM-Ti": 21.8,
+      "SAM 2.1-tiny": 22.5,
+      "UETrack-T": 27.8
+    },
+    "brief absence (up to 30 frames)": {
+      "n": 19,
+      "UETrack-B": 45.2,
+      "EfficientTAM-Ti": 36.2,
+      "SAM 2.1-tiny": 43.4,
+      "UETrack-T": 49.5
+    },
+    "out of view over 30 frames": {
+      "n": 12,
+      "UETrack-B": 58.8,
+      "EfficientTAM-Ti": 55.4,
+      "SAM 2.1-tiny": 58.4,
+      "UETrack-T": 64.6
+    }
+  },
+  "recovery_disagreement": {
+    "sam2_ends_lost_uetrack_b_does_not": 23,
+    "uetrack_b_ends_lost_sam2_does_not": 4,
+    "both": 23
+  }
+}

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 432" width="1200" height="432" role="img">
+<rect width="1200" height="432" fill="#ffffff"/>
+<text x="40" y="44" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#20242b">Difference from UETrack-B, with 95% interval</text>
+<text x="40" y="72" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#6a7079">Paired bootstrap over the 120 test sequences (10,000 resamples). An interval that crosses zero is a tie.</text>
+<text x="210.0" y="112" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#20242b">Frames lost</text>
+<line x1="210.0" y1="124.0" x2="210.0" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="210.0" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">-6</text>
+<line x1="254.7" y1="124.0" x2="254.7" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="254.7" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">-4</text>
+<line x1="299.4" y1="124.0" x2="299.4" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="299.4" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">-2</text>
+<line x1="344.1" y1="124.0" x2="344.1" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="344.1" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">0</text>
+<line x1="388.8" y1="124.0" x2="388.8" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="388.8" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">+2</text>
+<line x1="433.5" y1="124.0" x2="433.5" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="433.5" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">+4</text>
+<line x1="478.2" y1="124.0" x2="478.2" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="478.2" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">+6</text>
+<line x1="522.9" y1="124.0" x2="522.9" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="522.9" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">+8</text>
+<line x1="567.6" y1="124.0" x2="567.6" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="567.6" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">+10</text>
+<line x1="612.3" y1="124.0" x2="612.3" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="612.3" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">+12</text>
+<line x1="657.0" y1="124.0" x2="657.0" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="657.0" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">+14</text>
+<line x1="344.1" y1="120.0" x2="344.1" y2="350.0" stroke="#20242b" stroke-width="1.5"/>
+<text x="433.5" y="392" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#6a7079">Lost% minus UETrack-B, percentage points</text>
+<line x1="277.1" y1="161.0" x2="449.1" y2="161.0" stroke="#b7791f" stroke-width="3"/>
+<line x1="277.1" y1="154.0" x2="277.1" y2="168.0" stroke="#b7791f" stroke-width="2"/>
+<line x1="449.1" y1="154.0" x2="449.1" y2="168.0" stroke="#b7791f" stroke-width="2"/>
+<circle cx="364.2" cy="161.0" r="7" fill="#b7791f"/>
+<text stroke="#ffffff" stroke-width="5" stroke-linejoin="round" x="364.21500000000003" y="147.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#6a7079">+0.9  [-3.0, +4.7]  tie</text>
+<text x="364.21500000000003" y="147.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#6a7079">+0.9  [-3.0, +4.7]  tie</text>
+<line x1="319.5" y1="235.0" x2="500.6" y2="235.0" stroke="#0b5fb0" stroke-width="3"/>
+<line x1="319.5" y1="228.0" x2="319.5" y2="242.0" stroke="#0b5fb0" stroke-width="2"/>
+<line x1="500.6" y1="228.0" x2="500.6" y2="242.0" stroke="#0b5fb0" stroke-width="2"/>
+<circle cx="408.9" cy="235.0" r="7" fill="#0b5fb0"/>
+<text stroke="#ffffff" stroke-width="5" stroke-linejoin="round" x="408.91499999999996" y="221.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#6a7079">+2.9  [-1.1, +7.0]  tie</text>
+<text x="408.91499999999996" y="221.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#6a7079">+2.9  [-1.1, +7.0]  tie</text>
+<line x1="469.3" y1="309.0" x2="598.9" y2="309.0" stroke="#2f855a" stroke-width="3"/>
+<line x1="469.3" y1="302.0" x2="469.3" y2="316.0" stroke="#2f855a" stroke-width="2"/>
+<line x1="598.9" y1="302.0" x2="598.9" y2="316.0" stroke="#2f855a" stroke-width="2"/>
+<circle cx="529.6" cy="309.0" r="7" fill="#2f855a"/>
+<text stroke="#ffffff" stroke-width="5" stroke-linejoin="round" x="529.605" y="295.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" fill="#20242b">+8.3  [+5.6, +11.4]  worse</text>
+<text x="529.605" y="295.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" fill="#20242b">+8.3  [+5.6, +11.4]  worse</text>
+<text x="713.0" y="112" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#20242b">Sequences that end lost</text>
+<line x1="713.0" y1="124.0" x2="713.0" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="713.0" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">-6</text>
+<line x1="791.9" y1="124.0" x2="791.9" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="791.8823529411765" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">0</text>
+<line x1="870.8" y1="124.0" x2="870.8" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="870.7647058823529" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">+6</text>
+<line x1="949.6" y1="124.0" x2="949.6" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="949.6470588235294" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">+12</text>
+<line x1="1028.5" y1="124.0" x2="1028.5" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="1028.5294117647059" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">+18</text>
+<line x1="1107.4" y1="124.0" x2="1107.4" y2="346.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="1107.4117647058824" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">+24</text>
+<line x1="791.9" y1="120.0" x2="791.9" y2="350.0" stroke="#20242b" stroke-width="1.5"/>
+<text x="936.5" y="392" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#6a7079">share of the 120 sequences, minus UETrack-B, points</text>
+<line x1="802.4" y1="161.0" x2="1022.0" y2="161.0" stroke="#b7791f" stroke-width="3"/>
+<line x1="802.4" y1="154.0" x2="802.4" y2="168.0" stroke="#b7791f" stroke-width="2"/>
+<line x1="1022.0" y1="154.0" x2="1022.0" y2="168.0" stroke="#b7791f" stroke-width="2"/>
+<circle cx="912.8" cy="161.0" r="7" fill="#b7791f"/>
+<text stroke="#ffffff" stroke-width="5" stroke-linejoin="round" x="912.835294117647" y="147.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" fill="#20242b">+9.2  [+0.8, +17.5]  worse</text>
+<text x="912.835294117647" y="147.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" fill="#20242b">+9.2  [+0.8, +17.5]  worse</text>
+<line x1="890.5" y1="235.0" x2="1110.0" y2="235.0" stroke="#0b5fb0" stroke-width="3"/>
+<line x1="890.5" y1="228.0" x2="890.5" y2="242.0" stroke="#0b5fb0" stroke-width="2"/>
+<line x1="1110.0" y1="228.0" x2="1110.0" y2="242.0" stroke="#0b5fb0" stroke-width="2"/>
+<circle cx="999.6" cy="235.0" r="7" fill="#0b5fb0"/>
+<text stroke="#ffffff" stroke-width="5" stroke-linejoin="round" x="999.6058823529412" y="221.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" fill="#20242b">+15.8  [+7.5, +24.2]  worse</text>
+<text x="999.6058823529412" y="221.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" fill="#20242b">+15.8  [+7.5, +24.2]  worse</text>
+<line x1="933.9" y1="309.0" x2="1153.4" y2="309.0" stroke="#2f855a" stroke-width="3"/>
+<line x1="933.9" y1="302.0" x2="933.9" y2="316.0" stroke="#2f855a" stroke-width="2"/>
+<line x1="1153.4" y1="302.0" x2="1153.4" y2="316.0" stroke="#2f855a" stroke-width="2"/>
+<circle cx="1044.3" cy="309.0" r="7" fill="#2f855a"/>
+<text stroke="#ffffff" stroke-width="5" stroke-linejoin="round" x="1044.3058823529411" y="295.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" fill="#20242b">+19.2  [+10.8, +27.5]  worse</text>
+<text x="1044.3058823529411" y="295.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" fill="#20242b">+19.2  [+10.8, +27.5]  worse</text>
+<text x="190" y="167.0" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">EfficientTAM-Ti</text>
+<text x="190" y="241.0" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">SAM 2.1-tiny</text>
+<text x="190" y="315.0" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#20242b">UETrack-T</text>
+</svg>

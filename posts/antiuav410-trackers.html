@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNJHN77SZF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-HNJHN77SZF");
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Measured, Not Reported: Four Edge Trackers on Anti-UAV410 — Genadiy Vasserman</title>
+    <meta
+      name="description"
+      content="Four single-object trackers run under one protocol on the Anti-UAV410 thermal drone benchmark. Three of them lose the drone equally often; what separates them is whether they get it back."
+    />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Measured, Not Reported: Four Edge Trackers on Anti-UAV410" />
+    <meta
+      property="og:description"
+      content="SAM 2.1, EfficientTAM, UETrack-B and UETrack-T on 129,691 thermal frames: a three-way tie on loss rate, and a clear winner on recovery."
+    />
+    <meta property="og:url" content="https://genawass.github.io/posts/antiuav410-trackers.html" />
+    <meta property="og:site_name" content="Genadiy Vasserman" />
+    <meta property="og:image" content="https://genawass.github.io/posts/antiuav410-trackers/share.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Measured, Not Reported: Four Edge Trackers on Anti-UAV410" />
+    <meta
+      name="twitter:description"
+      content="Same loss rate, very different endings: which trackers get the drone back after losing it."
+    />
+
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .lede { font-size: 1.12rem; color: var(--text); }
+      .thesis {
+        margin: 28px 0;
+        padding: 18px 20px;
+        border: 1px solid #d8ccef;
+        border-radius: 8px;
+        background: #f3effb;
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+      .thesis strong { color: var(--text); }
+      .post-body h3 {
+        margin: 30px 0 6px;
+        font-family: "Charter", "Georgia", serif;
+        font-size: 1.16rem;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        color: var(--text);
+      }
+      .post-body ul { margin: 0 0 18px; padding-left: 1.3rem; }
+      .post-body li { margin-bottom: 8px; }
+      .table-wrap { margin: 18px 0 24px; overflow-x: auto; }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.84rem;
+      }
+      th, td {
+        border: 1px solid var(--rule);
+        padding: 7px 11px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th { background: #f6f6f3; font-weight: 600; }
+      td.num, th.num { text-align: right; }
+      tr.best td { background: #f7f4fc; }
+      .graphic { width: 100%; display: block; margin: 30px 0 10px; }
+      .chart-cap {
+        margin: 0 auto 36px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.86rem;
+        color: var(--muted);
+        text-align: center;
+      }
+      .resource {
+        margin: 6px 0 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.86rem;
+        color: var(--muted);
+      }
+      hr.sep { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
+      .note {
+        margin-top: 44px;
+        padding-top: 18px;
+        border-top: 1px solid var(--rule);
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <article class="post">
+      <p class="backlink">
+        <a href="../index.html">← Genadiy Vasserman</a>
+        &nbsp;·&nbsp;
+        <a href="../blog.html">Blog</a>
+      </p>
+
+      <header class="post-head">
+        <h1>Measured, Not Reported: Four Edge Trackers on Anti-UAV410</h1>
+        <time datetime="2026-09-25">September 25, 2026</time>
+      </header>
+
+      <div class="post-body">
+        <p class="lede">
+          In June I wrote a <a href="edge-tracking-2026.html">review of 2026 edge
+          trackers</a> built entirely from numbers the authors reported, and said so
+          at the bottom: always benchmark on your own data before committing. This
+          is that benchmark. I ran four of the trackers under one protocol on
+          <strong>Anti-UAV410</strong>, the public thermal-infrared anti-drone
+          benchmark, and the result is not the ranking any leaderboard would give
+          you.
+        </p>
+
+        <div class="thesis">
+          <strong>The short version:</strong> on 129,691 thermal frames, three of the
+          four trackers lose the drone on statistically indistinguishable fractions of
+          frames. What separates them is what happens <em>after</em> they lose it.
+          <strong>UETrack-B ends 27 of 120 sequences with the drone lost for good;
+          SAM 2.1 ends 46.</strong> And when the drone leaves the frame for long, all
+          four fail the same way.
+        </div>
+
+        <h2>The benchmark</h2>
+        <p>
+          <a href="https://github.com/HwangBo94/Anti-UAV410" target="_blank" rel="noreferrer">Anti-UAV410</a>
+          (Huang et al., TPAMI 2023) is 410 thermal videos of drones at 640&times;512,
+          one target per sequence, split 200 train / 90 val / 120 test. I used the
+          <strong>test split: 120 sequences, 129,691 frames</strong>.
+        </p>
+        <p>It is a hard benchmark for reasons that matter in practice:</p>
+        <ul>
+          <li><strong>The targets are small.</strong> Almost half of all test frames (64,053) belong to sequences whose median target is under 32 pixels across, and 26 sequences have a median target under 16 pixels.</li>
+          <li><strong>The drone leaves the frame.</strong> In 31 of the 120 sequences the target is out of view at some point; in 12 it is gone for more than 30 frames, and in one for 253.</li>
+          <li><strong>Thermal has little texture.</strong> A drone is a warm blob against sky, cloud, or tree line, with none of the colour and edge detail RGB trackers are pre-trained on.</li>
+        </ul>
+
+        <h2>The protocol</h2>
+        <p>
+          Every tracker gets the same thing: the ground-truth box on frame 0, and
+          nothing after that. <strong>No re-prompting, ever</strong> &mdash; including
+          when the drone flies out of view and comes back. Losing the target and
+          picking it up again is precisely what this dataset tests, and re-prompting
+          on its return would hand the tracker the answer.
+        </p>
+        <p>
+          I don't lead with AUC, because it blends two different failures into one
+          number: a tracker that drifts slightly all the time and one that holds the
+          target perfectly and then loses it for good can land on the same score. I
+          report three measures instead, and AUC and precision alongside for
+          comparison:
+        </p>
+        <ul>
+          <li><strong>Lost%</strong> &mdash; the fraction of frames where the predicted centre is more than one target size (square root of box area, floored at 8 px) from the true centre. Distance, not overlap: on a 6-pixel drone a 4-pixel offset has zero IoU and is still a perfectly good lock.</li>
+          <li><strong>Accuracy</strong> &mdash; mean IoU over the frames that are <em>not</em> lost. Box quality, with the question of whether the tracker is on target at all factored out.</li>
+          <li><strong>Ends lost</strong> &mdash; the number of sequences whose final lost stretch runs to the last frame and lasts at least 30 frames. The tracker lost the drone and never got it back.</li>
+        </ul>
+        <p>
+          Frames where the drone is out of view are skipped rather than scored. That
+          makes these numbers <strong>not comparable</strong> to Anti-UAV's own
+          published &ldquo;state accuracy&rdquo;, which also penalises a tracker for
+          drawing a box when there is nothing to track. 49 test frames carry
+          contradictory labels &mdash; marked visible with an empty box, or absent
+          with a box &mdash; and those are skipped too.
+        </p>
+
+        <h2>The trackers</h2>
+        <p>
+          Four models, two families. Every configuration was fixed before this
+          benchmark was run; <strong>nothing was tuned on Anti-UAV410</strong>.
+        </p>
+        <ul>
+          <li><strong>SAM 2.1-tiny</strong> &mdash; full-frame promptable video segmentation with a memory bank. It outputs a mask; I score its tight bounding box. <span class="resource"><a href="https://github.com/facebookresearch/sam2" target="_blank" rel="noreferrer">facebookresearch/sam2</a></span></li>
+          <li><strong>EfficientTAM-Ti (512 px)</strong> &mdash; an efficient SAM 2-family model, run with a 7-slot memory bank whose recent memories are spaced 5 frames apart instead of being the last few frames. <span class="resource"><a href="https://github.com/yformer/EfficientTAM" target="_blank" rel="noreferrer">yformer/EfficientTAM</a></span></li>
+          <li><strong>UETrack-B</strong> and <strong>UETrack-T</strong> &mdash; crop-based bounding-box trackers built for edge deployment, the base and tiny variants of the model I picked as the best practical edge candidate in June. Stock settings. <span class="resource"><a href="https://github.com/kangben258/UETrack" target="_blank" rel="noreferrer">kangben258/UETrack</a></span></li>
+        </ul>
+
+        <h2>Results</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th><th>Family</th>
+                <th class="num">Lost% &darr;</th><th class="num">Ends lost &darr;</th>
+                <th class="num">Accuracy &uarr;</th><th class="num">AUC &uarr;</th><th class="num">Precision &uarr;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="best"><td>UETrack-B</td><td>crop</td><td class="num">26.6</td><td class="num">27 / 120</td><td class="num">73.3</td><td class="num">54.8</td><td class="num">72.7</td></tr>
+              <tr><td>EfficientTAM-Ti</td><td>full-frame</td><td class="num">27.4</td><td class="num">38 / 120</td><td class="num">68.1</td><td class="num">49.6</td><td class="num">72.2</td></tr>
+              <tr><td>SAM 2.1-tiny</td><td>full-frame</td><td class="num">29.4</td><td class="num">46 / 120</td><td class="num">67.9</td><td class="num">48.2</td><td class="num">70.2</td></tr>
+              <tr><td>UETrack-T</td><td>crop</td><td class="num">34.9</td><td class="num">50 / 120</td><td class="num">70.9</td><td class="num">48.2</td><td class="num">64.6</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          UETrack-B leads on every column. But with 120 sequences, a lead of one or
+          two points can easily be noise, so I checked each gap with a paired
+          bootstrap: resample the 120 sequences 10,000 times, keeping each model's
+          result on the same sequence together, and see how often the gap survives.
+        </p>
+
+        <img class="graphic" src="antiuav410-trackers/01_forest.svg"
+          alt="Forest plot of each model's difference from UETrack-B with 95% intervals. On frames lost, EfficientTAM and SAM 2.1 intervals cross zero and UETrack-T's does not. On sequences that end lost, all three intervals are above zero." />
+        <p class="chart-cap">
+          Left: the loss-rate gaps between UETrack-B, EfficientTAM and SAM 2.1 are
+          within noise. Right: the recovery gaps are not.
+        </p>
+
+        <p>Four things hold up:</p>
+        <ul>
+          <li><strong>Loss rate is a three-way tie.</strong> UETrack-B, EfficientTAM and SAM 2.1 lose the drone on statistically indistinguishable fractions of frames. Their 95% intervals against UETrack-B both cross zero. Don't rank them on Lost%.</li>
+          <li><strong>UETrack-B draws better boxes</strong> &mdash; about 5 points of IoU over both full-frame models, with intervals well clear of zero (&minus;5.5 [&minus;7.1, &minus;3.8] for SAM 2.1, &minus;5.2 [&minus;6.9, &minus;3.5] for EfficientTAM).</li>
+          <li><strong>UETrack-B gets the drone back.</strong> This is the result that should change a deployment decision. On the sequences where UETrack-B and SAM 2.1 disagree about how it ends, SAM 2.1 finishes lost and UETrack-B does not on 23; the reverse happens on 4. Same loss rate, very different endings.</li>
+          <li><strong>UETrack-T is clearly the weakest</strong>, on every measure, with every interval clear of zero.</li>
+        </ul>
+
+        <h2>Out of view breaks everyone</h2>
+        <p>
+          Split the test sequences by the longest stretch the drone spends out of
+          frame:
+        </p>
+
+        <img class="graphic" src="antiuav410-trackers/02_out_of_view.svg"
+          alt="Grouped bar chart of Lost% per model: around 17 to 27 percent on sequences where the drone is never absent, around 38 to 46 percent with brief absences, and 55 to 65 percent where the drone is out of view for more than 30 frames." />
+        <p class="chart-cap">
+          Where the drone stays in frame, UETrack-B leads. Where it is gone for more
+          than 30 frames, all four lose most of what follows.
+        </p>
+
+        <p>
+          Where the drone never leaves, the order is the headline one: UETrack-B
+          loses 18.2% of frames, the other three 21.8&ndash;27.8%. Brief absences
+          reshuffle it &mdash; EfficientTAM loses 36.2% against 43&ndash;50% for the
+          rest &mdash; but that is 19 sequences, and I wouldn't lean on it.
+        </p>
+        <p>
+          On the 12 sequences where the drone is gone for more than 30 frames, every
+          model loses 55&ndash;65% of the frames. None of them &mdash; memory bank or
+          search crop &mdash; reliably reacquires a target that has left the frame on
+          its own. That is the case for pairing any of these trackers with a
+          re-detection loop, and on this benchmark such a loop would have a great
+          deal of work to do.
+        </p>
+
+        <h2>Small targets are the other half of the problem</h2>
+
+        <img class="graphic" src="antiuav410-trackers/03_size.svg"
+          alt="Grouped bar chart of Lost% by target size: around 48 to 59 percent for tiny targets under 16 pixels, 30 to 40 percent for small targets, and 17 to 24 percent for medium targets." />
+        <p class="chart-cap">
+          The one sequence with a target over 64 px is left out: one sequence is not a bucket.
+        </p>
+
+        <p>
+          Below 16 pixels, every model loses about half the frames. EfficientTAM does
+          best there (47.9%), UETrack-T worst (58.7%) &mdash; and UETrack-T is the
+          weakest in every size bucket, which is the price of its speed showing up
+          exactly where the targets are hardest.
+        </p>
+
+        <h2>Back to the June recommendations</h2>
+        <p>The review made three calls. Measured on this benchmark:</p>
+        <h3>&ldquo;Start with UETrack-B if accuracy matters&rdquo; &mdash; holds.</h3>
+        <p>
+          Best boxes, best recovery, and tied for the lowest loss rate. It is the
+          only model here with no column where something else is clearly better.
+        </p>
+        <h3>&ldquo;UETrack-T if latency is the main constraint&rdquo; &mdash; holds, with a real price.</h3>
+        <p>
+          On small thermal targets its speed is not free: 8.3 points more frames lost
+          than UETrack-B and 23 more sequences that end lost. If you ship it, ship it
+          with a re-detection path.
+        </p>
+        <h3>&ldquo;Don't start with SAM 2 unless you need masks&rdquo; &mdash; holds.</h3>
+        <p>
+          For bounding boxes, SAM 2.1 is no better at holding the target, 5.5 points
+          worse on box quality, and the most likely of the three strong models to end
+          a sequence lost. Its memory bank does not buy reacquisition here.
+          EfficientTAM, the efficient model from the same family, matched it on loss
+          and ended fewer sequences lost (38 against 46).
+        </p>
+
+        <h2>What this does not show</h2>
+        <ul>
+          <li><strong>One benchmark, one modality.</strong> Thermal drones against sky and clutter. On colour video, or on targets the camera is actively following, the order can change &mdash; and does, on other data I have run these same models on.</li>
+          <li><strong>No latency.</strong> The runs shared a GPU, so their timings mean nothing here. The June post has the reported edge numbers; measure on your own hardware.</li>
+          <li><strong>No re-detection.</strong> Every tracker ran alone. The out-of-view result says that is exactly the gap a real system has to close.</li>
+          <li><strong>Not Anti-UAV's own metric.</strong> Out-of-view frames are skipped, not scored, so these results sit beside the published Anti-UAV410 leaderboard, not on it.</li>
+        </ul>
+
+        <p class="note">
+          <strong>Where this fits.</strong> This is the measured follow-up to
+          <a href="edge-tracking-2026.html">The Future of Edge Tracking: 2026 SOTA
+          Single Object Tracking Review</a>, which compared these and other trackers
+          on their reported numbers. The dataset is
+          <a href="https://github.com/HwangBo94/Anti-UAV410" target="_blank" rel="noreferrer">Anti-UAV410</a>
+          (Huang et al., <em>Anti-UAV410: A Thermal Infrared Benchmark and Customized
+          Scheme for Tracking Drones in the Wild</em>, TPAMI 2023). Every number in
+          this post and its figures comes from one exported results file,
+          <a href="antiuav410-trackers/data.json">data.json</a>.
+        </p>
+      </div>
+    </article>
+  </body>
+</html>

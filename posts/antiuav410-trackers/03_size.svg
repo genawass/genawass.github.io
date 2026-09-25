@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 666" width="1200" height="666" role="img">
+<rect width="1200" height="666" fill="#ffffff"/>
+<text x="40" y="44" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#20242b">About half the frames on sub-16-pixel drones are lost by every model</text>
+<text x="40" y="72" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#6a7079">Lost%, grouped by each sequence&#x27;s median target size (square root of box area).</text>
+<line x1="200.0" y1="106.0" x2="200.0" y2="608.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="200.0" y="628" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">0</text>
+<line x1="322.9" y1="106.0" x2="322.9" y2="608.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="322.85714285714283" y="628" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">10</text>
+<line x1="445.7" y1="106.0" x2="445.7" y2="608.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="445.71428571428567" y="628" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">20</text>
+<line x1="568.6" y1="106.0" x2="568.6" y2="608.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="568.5714285714286" y="628" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">30</text>
+<line x1="691.4" y1="106.0" x2="691.4" y2="608.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="691.4285714285713" y="628" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">40</text>
+<line x1="814.3" y1="106.0" x2="814.3" y2="608.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="814.2857142857143" y="628" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">50</text>
+<line x1="937.1" y1="106.0" x2="937.1" y2="608.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="937.1428571428571" y="628" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">60</text>
+<line x1="1060.0" y1="106.0" x2="1060.0" y2="608.0" stroke="#f1f1ee" stroke-width="1"/>
+<text x="1060.0" y="628" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#6a7079">70</text>
+<text x="630.0" y="652" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#6a7079">Lost%</text>
+<text x="40" y="130" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#20242b">tiny (&lt;16px)  (n=26)</text>
+<text x="186" y="160" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">UETrack-B</text>
+<rect x="200" y="146" width="615.5" height="18" rx="3" fill="#6b46c1"/>
+<text x="823.5142857142857" y="160" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">50.1</text>
+<text x="186" y="186" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">EfficientTAM-Ti</text>
+<rect x="200" y="172" width="588.5" height="18" rx="3" fill="#b7791f"/>
+<text x="796.4857142857143" y="186" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">47.9</text>
+<text x="186" y="212" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">SAM 2.1-tiny</text>
+<rect x="200" y="198" width="653.6" height="18" rx="3" fill="#0b5fb0"/>
+<text x="861.6" y="212" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">53.2</text>
+<text x="186" y="238" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">UETrack-T</text>
+<rect x="200" y="224" width="721.2" height="18" rx="3" fill="#2f855a"/>
+<text x="929.1714285714286" y="238" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">58.7</text>
+<text x="40" y="294" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#20242b">small (16-32px)  (n=25)</text>
+<text x="186" y="324" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">UETrack-B</text>
+<rect x="200" y="310" width="371.0" height="18" rx="3" fill="#6b46c1"/>
+<text x="579.0285714285715" y="324" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">30.2</text>
+<text x="186" y="350" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">EfficientTAM-Ti</text>
+<rect x="200" y="336" width="412.8" height="18" rx="3" fill="#b7791f"/>
+<text x="620.8" y="350" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">33.6</text>
+<text x="186" y="376" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">SAM 2.1-tiny</text>
+<rect x="200" y="362" width="373.5" height="18" rx="3" fill="#0b5fb0"/>
+<text x="581.4857142857143" y="376" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">30.4</text>
+<text x="186" y="402" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">UETrack-T</text>
+<rect x="200" y="388" width="492.7" height="18" rx="3" fill="#2f855a"/>
+<text x="700.6571428571428" y="402" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">40.1</text>
+<text x="40" y="458" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#20242b">medium (32-64px)  (n=68)</text>
+<text x="186" y="488" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">UETrack-B</text>
+<rect x="200" y="474" width="203.9" height="18" rx="3" fill="#6b46c1"/>
+<text x="411.9428571428572" y="488" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">16.6</text>
+<text x="186" y="514" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">EfficientTAM-Ti</text>
+<rect x="200" y="500" width="217.5" height="18" rx="3" fill="#b7791f"/>
+<text x="425.4571428571428" y="514" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">17.7</text>
+<text x="186" y="540" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">SAM 2.1-tiny</text>
+<rect x="200" y="526" width="250.6" height="18" rx="3" fill="#0b5fb0"/>
+<text x="458.62857142857143" y="540" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">20.4</text>
+<text x="186" y="566" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#20242b">UETrack-T</text>
+<rect x="200" y="552" width="299.8" height="18" rx="3" fill="#2f855a"/>
+<text x="507.77142857142854" y="566" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#20242b">24.4</text>
+</svg>
