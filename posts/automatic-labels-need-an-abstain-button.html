@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNJHN77SZF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-HNJHN77SZF");
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Automatic Labels Need an Abstain Button — Genadiy Vasserman</title>
+    <meta name="description" content="Why auto-labeling matters, how Lynceus combines open-vocabulary detection, tiling, segmentation and verification, and what the measurements say it can—and cannot—claim." />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Automatic Labels Need an Abstain Button" />
+    <meta property="og:description" content="Find broadly, refine against pixels, verify independently, and preserve uncertainty instead of manufacturing ground truth." />
+    <meta property="og:url" content="https://genawass.github.io/posts/automatic-labels-need-an-abstain-button.html" />
+    <meta property="og:site_name" content="Genadiy Vasserman" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Automatic Labels Need an Abstain Button" />
+    <meta name="twitter:description" content="What worked—and what did not—in an offline auto-labeling pipeline." />
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .lede { font-size: 1.12rem; color: var(--text); }
+      .thesis, .callout { margin: 28px 0; padding: 18px 20px; border: 1px solid var(--rule); border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+      .thesis { background: #f3effb; border-color: #d8ccef; font-size: 1rem; line-height: 1.65; }
+      .callout { background: #fafafa; font-size: 0.92rem; line-height: 1.65; }
+      .callout strong, .thesis strong { color: var(--text); }
+      .graphic { width: 100%; display: block; margin: 30px 0 10px; }
+      .chart-cap { margin: 0 auto 36px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 0.86rem; color: var(--muted); text-align: center; }
+      .comparison { width: 100%; margin: 28px 0 34px; border-collapse: collapse; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 0.86rem; }
+      .comparison th, .comparison td { padding: 11px 10px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+      .comparison th { color: var(--muted); font-weight: 500; }
+      .good { color: #2e7d32; font-weight: 600; }
+      .note { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 0.92rem; color: var(--muted); }
+      @media (max-width: 620px) { .comparison { font-size: 0.76rem; } .comparison th, .comparison td { padding: 8px 5px; } }
+    </style>
+  </head>
+  <body>
+    <article class="post">
+      <p class="backlink"><a href="../index.html">← Genadiy Vasserman</a>&nbsp;·&nbsp;<a href="../blog.html">Blog</a></p>
+      <header class="post-head">
+        <h1>Automatic Labels Need an Abstain Button</h1>
+        <time datetime="2026-09-28">September 28, 2026</time>
+      </header>
+
+      <div class="post-body">
+        <p class="lede">
+          The appealing version of auto-labeling is simple: run a strong model,
+          keep its boxes, and replace weeks of annotation with a GPU job. The
+          dangerous version is almost identical. It replaces weeks of annotation
+          with thousands of plausible, systematic mistakes.
+        </p>
+
+        <div class="thesis">
+          <strong>The claim:</strong> a useful auto-labeler is not a detector with
+          a file writer. It is a <strong>selective prediction system</strong>:
+          find broadly, refine against pixels, seek reproducible evidence, and
+          abstain when the evidence cannot support the label. Its output should
+          accelerate review—not impersonate ground truth.
+        </div>
+
+        <p>
+          I built <a href="https://github.com/genawass/lynceus" target="_blank" rel="noreferrer">Lynceus</a>
+          to explore that distinction. It is a local, offline object-annotation
+          pipeline with versioned ontologies, immutable evidence, explicit
+          uncertainty and evaluation that refuses to turn a small benchmark into
+          a qualification claim. This is what mattered, how the system works, and
+          what the experiments actually showed.
+        </p>
+
+        <h2>Why auto-labeling matters</h2>
+        <p>
+          Data is still the slow interface in a computer-vision loop. Training an
+          experiment may take hours; acquiring, boxing, naming and auditing the
+          next dataset can take weeks. Dense scenes and tiny objects make the gap
+          worse: a single aerial frame can contain hundreds of instances, and a
+          small box shifted by one pixel may cross the evaluation threshold.
+        </p>
+        <p>
+          Automation changes the economics. A machine proposal gives a reviewer
+          something to accept, correct or reject instead of asking them to search
+          every pixel from scratch. It also makes labeling reproducible: the same
+          ontology, thresholds and model bundle can be rerun, compared and audited.
+          That matters for active learning, dataset refreshes and data that must
+          remain offline.
+        </p>
+        <p>
+          But annotation errors are not ordinary inference errors. They become
+          training data. A missed class becomes a false negative for the next
+          model; a confidently wrong fine-grained name teaches the confusion; an
+          oversized box changes localization behavior. Human mistakes are often
+          local. Automated mistakes repeat at scale.
+        </p>
+        <div class="callout">
+          <strong>The objective is not “maximum boxes per hour.”</strong><br />
+          It is maximum useful coverage at a measured error level, with every
+          unsupported decision still visible to the reviewer.
+        </div>
+
+        <h2>How Lynceus approaches it</h2>
+        <svg class="graphic" viewBox="0 0 760 205" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An image passes through tiled OWLv2 discovery, conservative naming, SAM 3 refinement and verification, and then splits into accepted and uncertain outputs while evidence is recorded.">
+          <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8a8a99" /></marker></defs>
+          <g font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif">
+            <g fill="#fff" stroke="#cfcfd8"><rect x="0" y="58" width="104" height="54" rx="6"/><rect x="132" y="42" width="118" height="86" rx="6"/><rect x="278" y="42" width="118" height="86" rx="6"/><rect x="424" y="42" width="118" height="86" rx="6"/><rect x="570" y="20" width="148" height="48" rx="6" fill="#edf7ee" stroke="#b8d8bb"/><rect x="570" y="102" width="148" height="48" rx="6" fill="#fafafa"/></g>
+            <g font-size="12" fill="#3b3b46" text-anchor="middle"><text x="52" y="81">source</text><text x="52" y="98">image</text><text x="191" y="67">tiled OWLv2</text><text x="191" y="84">discovery</text><text x="191" y="105" fill="#8a8a99" font-size="10.5">find broadly</text><text x="337" y="67">ontology +</text><text x="337" y="84">edge-aware merge</text><text x="337" y="105" fill="#8a8a99" font-size="10.5">name conservatively</text><text x="483" y="67">SAM 3 refine</text><text x="483" y="84">+ verify</text><text x="483" y="105" fill="#8a8a99" font-size="10.5">test reproducibility</text><text x="644" y="42">accepted</text><text x="644" y="58" fill="#4f7d52" font-size="10.5">all checks supported</text><text x="644" y="123">uncertain</text><text x="644" y="139" fill="#8a8a99" font-size="10.5">review with reasons</text></g>
+            <g stroke="#8a8a99" stroke-width="1.2" fill="none" marker-end="url(#arrow)"><path d="M104 85L130 85"/><path d="M250 85L276 85"/><path d="M396 85L422 85"/><path d="M542 72L568 48"/><path d="M542 98L568 122"/></g>
+            <path d="M132 177L542 177" stroke="#7a5ea8" stroke-width="1.2" stroke-dasharray="5 4"/><text x="337" y="171" font-size="10.5" fill="#7a5ea8" text-anchor="middle">candidates · alternatives · view coverage · artifact hashes</text><text x="337" y="196" font-size="10.5" fill="#7a5ea8" text-anchor="middle">recorded rather than discarded</text>
+          </g>
+        </svg>
+        <p class="chart-cap">Discovery proposes. Refinement changes geometry. Verification adds evidence. Policy—not one model score—decides what can be accepted.</p>
+
+        <h3>1. Search at the scale of the object</h3>
+        <p>
+          OWLv2 runs on the full image and overlapping source-resolution tiles.
+          Shrinking an aerial frame can turn a twelve-pixel person into a few
+          pixels, so tiling changes what reaches the detector. The grid follows
+          the image aspect ratio instead of wasting almost half a 16:9 tile on
+          square padding.
+        </p>
+        <p>
+          Repeated views create repeated boxes. IoU merging misses boxes cut by a
+          tile edge; intersection-over-smaller merges those, but also collapses
+          neighbors in crowds. Lynceus uses the permissive rule only when an
+          observation touches a view boundary. Losing observations remain attached
+          as alternatives instead of disappearing.
+        </p>
+
+        <h3>2. Prefer a defensible broad name to a brittle specific one</h3>
+        <p>
+          Classes come from a versioned ontology. If two vehicle labels compete,
+          the system can emit their supported parent, <code>vehicle</code>, instead
+          of guessing. Specificity can be added during review; a confident wrong
+          class quietly poisons training.
+        </p>
+
+        <h3>3. Separate finding, geometry and evidence</h3>
+        <p>
+          OWLv2 finds candidates. SAM 3 receives each retained box as a prompt and
+          tightens it against source pixels. A separate SAM 3 detection pass acts
+          as verifier. An unconfirmed box is not deleted; it receives an explicit
+          reason and stays available for review. “Another model did not reproduce
+          it” is evidence, not proof of absence.
+        </p>
+
+        <h3>4. Make uncertainty part of the output contract</h3>
+        <p>
+          Existence, class, boundary, count and granularity are assessed
+          separately. A proposal becomes accepted only when every required check
+          passed. Runs record the ontology, bundles, candidate evidence, coverage,
+          thresholds and hashes. Resume creates a new immutable run rather than
+          editing history.
+        </p>
+
+        <h2>What the measurements showed</h2>
+        <p>
+          The main development work used two frozen ten-image VisDrone panels.
+          That can compare mechanisms; it cannot certify an annotator. The useful
+          result was learning which stages earned their cost.
+        </p>
+        <table class="comparison">
+          <thead><tr><th>Change</th><th>Measured effect</th><th>Decision</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Aspect-aware tiling</strong></td><td>Recall rose from 0.578 to 0.807; seven views beat a 14-view square grid.</td><td class="good">Keep</td></tr>
+            <tr><td><strong>Conservative naming</strong></td><td>Classification error fell 35% on held-out, with slightly higher recall.</td><td class="good">Keep</td></tr>
+            <tr><td><strong>SAM 3 refinement</strong></td><td>IoU 0.75 matches rose from 370 to 397; mean matched IoU rose from 0.7715 to 0.7839.</td><td class="good">Keep</td></tr>
+            <tr><td><strong>SAM 3 verification</strong></td><td>Precision bound rose from 0.270 to 0.488 while recall moved from 0.870 to 0.852.</td><td class="good">Selectable filter</td></tr>
+            <tr><td><strong>Box fusion / TTN</strong></td><td>Fusion degraded geometry; TTN removed more correct boxes than detector score.</td><td>Reject</td></tr>
+            <tr><td><strong>Searched prompts</strong></td><td>Raised apparent precision but lost recall and tight matches on both panels.</td><td>Do not recommend</td></tr>
+          </tbody>
+        </table>
+        <p>
+          The recommended configuration combines one tiling level, a task-specific
+          co-occurrence ontology, the baseline prompt vocabulary, SAM 3 boundary
+          refinement and optional verification. On held-out, refinement plus the
+          ontology produced 374 IoU 0.75 matches versus 358 for the shipped
+          baseline, while eliminating 166 <code>unknown</code> labels. Verification
+          retained 97.9% of known positives while nearly doubling the measured
+          precision bound.
+        </p>
+        <p>
+          A verifier threshold targeting 90% sensitivity was fitted on development,
+          then frozen. It transferred to held-out at 90.2%, with 0.785 recall and
+          0.568 measured precision, then ran unchanged on new datasets:
+        </p>
+        <table class="comparison">
+          <thead><tr><th>Unseen dataset</th><th>Images</th><th>Objects found</th><th>Known positives kept</th></tr></thead>
+          <tbody>
+            <tr><td>UAVDet-small</td><td>20</td><td>0.889</td><td class="good">0.923</td></tr>
+            <tr><td>Aerial-pool</td><td>15</td><td>0.849</td><td class="good">0.943</td></tr>
+            <tr><td>Human detection in floods</td><td>10</td><td>0.325 at IoU 0.5</td><td class="good">0.989</td></tr>
+            <tr><td>APOCE construction</td><td>40</td><td>0.858</td><td>0.835</td></tr>
+          </tbody>
+        </table>
+        <p>
+          The flood result exposed a convention mismatch: its boxes include splash,
+          wake and shadow, while Lynceus boxes the person. Under a containment rule
+          suited to that convention, recall is 0.668 and precision 0.707. A metric
+          can measure labeling policy as much as model quality.
+        </p>
+        <p>
+          Construction equipment exposed the naming trade-off. Conservative naming
+          made no wrong class claims among matched boxes, but fell back to
+          <code>construction_equipment</code> 97% of the time. That is safe and not
+          specific—useful for proposals, and evidence that fine-grained labels
+          still need review or a stronger domain classifier.
+        </p>
+
+        <h2>What did not become true</h2>
+        <p>
+          Model agreement did not prove correctness. SAM 3, Grounding DINO and a
+          class-agnostic WeDetect verifier looked architecturally different, yet
+          their confirmed known positives were almost subsets of SAM 3's. More
+          models added cost and stricter operating points, not independent truth.
+        </p>
+        <p>
+          No search schedule can certify that an arbitrary image has no missed
+          object. VisDrone annotates road users, not every tree, building or piece
+          of street furniture, so unmatched predictions are not known negatives.
+          Precision is a lower bound of unknown tightness. An exhaustive,
+          independently annotated panel is still required for qualification.
+        </p>
+        <div class="thesis">
+          <strong>The result is a workflow, not an oracle.</strong> Lynceus can
+          produce reproducible proposals, improve small-object recall, tighten
+          boxes, reduce class guessing and route lower-evidence cases to review.
+          The current evidence does not support calling its output ground truth,
+          and the software says so.
+        </div>
+
+        <h2>The practical lesson</h2>
+        <p>
+          Auto-labeling becomes valuable before it becomes autonomous. It does not
+          need to replace the annotator to save time; it needs to move attention
+          from exhaustive search toward ambiguous cases while keeping its own
+          uncertainty inspectable.
+        </p>
+        <p>
+          Optimize the whole loop, not only the detector: search coverage,
+          ontology, boundaries, verification, evidence and review. Measure each
+          proposed trick on a frozen panel. Keep negative results. And make
+          abstention first-class, because the most expensive label is not the one
+          a model declined to make—it is the wrong one nobody knew to check.
+        </p>
+        <p class="note">
+          Code, experiment scripts, frozen mappings and the full delivery record
+          are in the <a href="https://github.com/genawass/lynceus" target="_blank" rel="noreferrer">Lynceus repository</a>.
+          The reported panels are small and mostly aerial; the repository
+          deliberately describes the system as unqualified pending an exhaustive
+          independent reference panel.
+        </p>
+      </div>
+    </article>
+  </body>
+</html>
