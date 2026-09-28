@@ -34,8 +34,14 @@
       .comparison th, .comparison td { padding: 11px 10px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
       .comparison th { color: var(--muted); font-weight: 500; }
       .good { color: #2e7d32; font-weight: 600; }
+      .examples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 28px 0 12px; }
+      .example { margin: 0; }
+      .example a, .example img { display: block; width: 100%; }
+      .example img { border: 1px solid var(--rule); border-radius: 6px; }
+      .example figcaption { margin-top: 8px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 0.82rem; line-height: 1.5; color: var(--muted); }
+      .example figcaption strong { color: var(--text); }
       .note { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 0.92rem; color: var(--muted); }
-      @media (max-width: 620px) { .comparison { font-size: 0.76rem; } .comparison th, .comparison td { padding: 8px 5px; } }
+      @media (max-width: 620px) { .comparison { font-size: 0.76rem; } .comparison th, .comparison td { padding: 8px 5px; } .examples { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
@@ -160,6 +166,46 @@
           That can compare mechanisms; it cannot certify an annotator. The useful
           result was learning which stages earned their cost.
         </p>
+
+        <h3>One image, six selection rules</h3>
+        <p>
+          Here is one held-out frame under the same geometry and candidate set.
+          Only the selection rule changes. Green boxes match an eligible VisDrone
+          reference at IoU 0.5. Red boxes are unmatched: some may be false
+          positives, but some are real objects outside VisDrone's finite label
+          scope. Click any panel for the full-resolution render.
+        </p>
+        <div class="examples">
+          <figure class="example">
+            <a href="automatic-labels-results/reference.webp"><img src="automatic-labels-results/reference.webp" loading="lazy" alt="VisDrone reference annotations for a dense road intersection, with 82 eligible road users." /></a>
+            <figcaption><strong>Reference.</strong> 82 eligible road users. This is the comparison target, not an exhaustive open-world annotation.</figcaption>
+          </figure>
+          <figure class="example">
+            <a href="automatic-labels-results/all-retained.webp"><img src="automatic-labels-results/all-retained.webp" loading="lazy" alt="All Lynceus OWLv2 proposals retained on the intersection image, with green reference matches and red unmatched boxes." /></a>
+            <figcaption><strong>OWLv2, all retained.</strong> 254 boxes, 76 reference matches: 0.927 recall and a 0.299 precision lower bound.</figcaption>
+          </figure>
+          <figure class="example">
+            <a href="automatic-labels-results/sam3.webp"><img src="automatic-labels-results/sam3.webp" loading="lazy" alt="Lynceus proposals confirmed by SAM 3 on the same intersection image." /></a>
+            <figcaption><strong>SAM 3 confirms.</strong> 136 boxes, all 76 matches preserved: the same 0.927 recall and a 0.559 precision lower bound.</figcaption>
+          </figure>
+          <figure class="example">
+            <a href="automatic-labels-results/wedetect.webp"><img src="automatic-labels-results/wedetect.webp" loading="lazy" alt="Lynceus proposals confirmed by class-agnostic WeDetect-Uni on the same image." /></a>
+            <figcaption><strong>WeDetect-Uni confirms.</strong> 127 boxes and 71 matches: 0.866 recall and a 0.559 precision lower bound.</figcaption>
+          </figure>
+          <figure class="example">
+            <a href="automatic-labels-results/grounding-dino.webp"><img src="automatic-labels-results/grounding-dino.webp" loading="lazy" alt="Lynceus proposals confirmed by Grounding DINO on the same image." /></a>
+            <figcaption><strong>Grounding DINO confirms.</strong> 108 boxes and 69 matches: 0.842 recall and a 0.639 precision lower bound.</figcaption>
+          </figure>
+          <figure class="example">
+            <a href="automatic-labels-results/all-agree.webp"><img src="automatic-labels-results/all-agree.webp" loading="lazy" alt="Only Lynceus proposals confirmed by SAM 3, WeDetect-Uni, and Grounding DINO on the same image." /></a>
+            <figcaption><strong>All three agree.</strong> 101 boxes and 68 matches: the cleanest-looking set, but recall falls to 0.829. Consensus is a stricter operating point, not proof.</figcaption>
+          </figure>
+        </div>
+        <p class="chart-cap">
+          Frame 0000346 from the held-out VisDrone panel. Geometry is fixed; only
+          verifier selection changes. Numbers are descriptive and unqualified.
+        </p>
+
         <table class="comparison">
           <thead><tr><th>Change</th><th>Measured effect</th><th>Decision</th></tr></thead>
           <tbody>
