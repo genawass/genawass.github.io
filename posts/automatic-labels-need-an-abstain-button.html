@@ -167,11 +167,13 @@
           result was learning which stages earned their cost.
         </p>
 
-        <h3>One image, six selection rules</h3>
+        <h3>One image, seven operating points</h3>
         <p>
-          Here is one held-out frame under the same geometry and candidate set.
-          Only the selection rule changes. Green boxes match an eligible VisDrone
-          reference at IoU 0.5. Red boxes are unmatched: some may be false
+          Here is one held-out frame. The OWLv2 and verifier panels use the same
+          geometry and candidate set; only their selection rule changes. Opus 5.5
+          is a separate detector using the whole frame plus six upscaled tiles, so
+          it is a comparison rather than an ablation. Green boxes match an eligible
+          VisDrone reference at IoU 0.5. Red boxes are unmatched: some may be false
           positives, but some are real objects outside VisDrone's finite label
           scope. Click any panel for the full-resolution render.
         </p>
@@ -200,10 +202,15 @@
             <a href="automatic-labels-results/all-agree.webp"><img src="automatic-labels-results/all-agree.webp" loading="lazy" alt="Only Lynceus proposals confirmed by SAM 3, WeDetect-Uni, and Grounding DINO on the same image." /></a>
             <figcaption><strong>All three agree.</strong> 101 boxes and 68 matches: the cleanest-looking set, but recall falls to 0.829. Consensus is a stricter operating point, not proof.</figcaption>
           </figure>
+          <figure class="example">
+            <a href="automatic-labels-results/opus-5-5-sahi.webp"><img src="automatic-labels-results/opus-5-5-sahi.webp" loading="lazy" alt="Opus 5.5 detections from the whole frame and six upscaled tiles on the same intersection image." /></a>
+            <figcaption><strong>Opus 5.5, size-routed SAHI.</strong> 101 boxes and 66 matches: 0.805 recall and 0.653 precision, the best standalone VLM detector tested. It was one non-reproducible sample, not a bundleable result.</figcaption>
+          </figure>
         </div>
         <p class="chart-cap">
-          Frame 0000346 from the held-out VisDrone panel. Geometry is fixed; only
-          verifier selection changes. Numbers are descriptive and unqualified.
+          Frame 0000346 from the held-out VisDrone panel. Verifier geometry is
+          fixed; Opus is an independent size-routed detection pass. Numbers are
+          descriptive and unqualified.
         </p>
 
         <table class="comparison">
